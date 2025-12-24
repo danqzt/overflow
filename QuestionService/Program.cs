@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using QuestionService.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -13,12 +16,10 @@ builder.Services.AddAuthentication()
 {
     options.RequireHttpsMetadata = false;
     options.Audience = "overflow";
-    options.TokenValidationParameters = new()
-    {
-        ValidateIssuer = true,
-        ValidIssuer = "http://localhost:16001/realms/overflow"
-    };
+    options.TokenValidationParameters.ValidIssuer = "http://localhost:16001/realms/overflow";
 });
+
+builder.AddNpgsqlDbContext<QuestionDbContext>("questionDb");
 
 var app = builder.Build();
 
@@ -29,7 +30,21 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseAuthentication();
-app.UseAuthorization();
+
 app.MapControllers();
 app.MapDefaultEndpoints();
+
+using var scope = app.Services.CreateScope();
+var services = scope.ServiceProvider;
+try
+{
+    var context = services.GetRequiredService<QuestionDbContext>();
+    await context.Database.MigrateAsync();
+}
+catch (Exception ex)
+{
+    var logger = services.GetRequiredService<ILogger<Program>>();
+    logger.LogError(ex, "An error occurred migrating the database.");
+    
+}
 app.Run();
