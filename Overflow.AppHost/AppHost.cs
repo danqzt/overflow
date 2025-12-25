@@ -14,10 +14,27 @@ var postgres = builder.AddPostgres("postgres", port: 5432)
 
 var questionDb = postgres.AddDatabase("questionDb");
 
+//dotnet user-secrets set "Parameters:typesense-api-key" "<the secret key>"
+//dotnet user-secrets list 
+//dashboard: https://bfritscher.github.io/typesense-dashboard/#/
+var typesenseApiKey = builder.AddParameter("typesense-api-key", secret: true);
+var typesense = builder.AddContainer("typesense", "typesense/typesense", "29.0")
+    .WithArgs("--data-dir", "/data", "--api-key", typesenseApiKey, "--enable-cors")
+    .WithHttpEndpoint(8108, 8108, name: "typesense")
+    .WithVolume("typesense-data", "/data");
+
+var typesenseContainer = typesense.GetEndpoint("typesense");
+
+
 var questionService = builder.AddProject<QuestionService>("question-svc")
     .WithReference(keycloak)
     .WithReference(questionDb)
     .WaitForStart(keycloak)
     .WaitForStart(questionDb);
+
+var searchService = builder.AddProject<SearchService>("search-svc")
+    .WithReference(typesenseContainer)
+    .WithEnvironment("typesense-api-key", typesenseApiKey)
+    .WaitForStart(typesense);
 
 builder.Build().Run();
