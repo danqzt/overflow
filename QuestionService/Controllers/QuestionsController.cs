@@ -1,0 +1,130 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using QuestionService.Data;
+using QuestionService.Dto;
+using QuestionService.Models;
+
+namespace QuestionService.Controllers;
+
+[ApiController]
+[Route("[controller]")]
+public class QuestionsController(QuestionDbContext db) : ControllerBase
+{
+    [Authorize]
+    [HttpPost]
+    public async Task<ActionResult<Question>> CreateQuestion(CreateQuestionDto dto)
+    {
+        //validate tags is in Db
+        if(InValidTags(dto.Tags))
+        {
+            return BadRequest("One or more tags are invalid.");
+        }
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var name = User.FindFirstValue("name");
+
+        if (userId is null || name is null) return BadRequest("Invalid user information.");
+        var question = new Question
+        {
+            Title = dto.Title,
+            Content = dto.Content,
+            TagSlugs = dto.Tags,
+            AskerId = userId,
+            AskerDisplayName = name,
+        };
+
+        db.Questions.Add(question);
+        await db.SaveChangesAsync();
+        return Created($"/questions/{question.Id}", question);
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<List<Question>>> GetQuestions(string? tag)
+    {
+        var query = db.Questions.AsQueryable();
+
+        if (!string.IsNullOrEmpty(tag))
+        {
+            query = query.Where(q => q.TagSlugs.Contains(tag));
+        }
+
+        return await query.OrderByDescending(q => q.CreatedAt).ToListAsync();
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Question>> GetQuestionById(string id)
+    {
+        var question = await db.Questions.FindAsync(id);
+        if (question == null)
+        {
+            return NotFound();
+        }
+
+        //update view count
+        await db.Questions.Where(q => q.Id == id)
+            .ExecuteUpdateAsync(set => set.SetProperty(q => q.ViewCount, q => q.ViewCount + 1));
+
+        return question;
+    }
+
+    [Authorize]
+    [HttpPut("{id}")]
+    public async Task<ActionResult> UpdateQuestion(string id, CreateQuestionDto dto)
+    {
+        var question = await db.Questions.FindAsync(id);
+        if (question == null)
+        {
+            return NotFound();
+        }
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (question.AskerId != userId)
+        {
+            return Forbid();
+        }
+
+        //validate tags is in Db
+        if(InValidTags(dto.Tags))
+        {
+            return BadRequest("One or more tags are invalid.");
+        }
+        
+
+        question.Title = dto.Title;
+        question.Content = dto.Content;
+        question.TagSlugs = dto.Tags;
+        question.UpdatedAt = DateTime.UtcNow;
+
+        await db.SaveChangesAsync();
+        return NoContent();
+    }
+    
+    private bool InValidTags(List<string> tags)
+    {
+        var validTags = db.Tags.Where(t => tags.Contains(t.Slug)).Select(t => t.Slug).ToList();
+        return validTags.Count != tags.Count;
+    }
+    
+    [Authorize]
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> DeleteQuestion(string id)
+    {
+        var question = await db.Questions.FindAsync(id);
+        if (question == null)
+        {
+            return NotFound();
+        }
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (question.AskerId != userId)
+        {
+            return Forbid();
+        }
+
+        db.Questions.Remove(question);
+        await db.SaveChangesAsync();
+        return NoContent();
+    }
+}
