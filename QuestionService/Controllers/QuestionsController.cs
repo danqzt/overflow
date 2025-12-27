@@ -1,23 +1,26 @@
 using System.Security.Claims;
+using Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuestionService.Data;
 using QuestionService.Dto;
 using QuestionService.Models;
+using QuestionService.Services;
+using Wolverine;
 
 namespace QuestionService.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class QuestionsController(QuestionDbContext db) : ControllerBase
+public class QuestionsController(QuestionDbContext db, IMessageBus bus, ITagService tagService) : ControllerBase
 {
     [Authorize]
     [HttpPost]
     public async Task<ActionResult<Question>> CreateQuestion(CreateQuestionDto dto)
     {
         //validate tags is in Db
-        if(InValidTags(dto.Tags))
+        if(await tagService.InValidTags(dto.Tags))
         {
             return BadRequest("One or more tags are invalid.");
         }
@@ -37,6 +40,14 @@ public class QuestionsController(QuestionDbContext db) : ControllerBase
 
         db.Questions.Add(question);
         await db.SaveChangesAsync();
+        
+        await bus.PublishAsync(new QuestionCreated(
+            question.Id,
+            question.Title,
+            question.Content,
+            question.CreatedAt,
+            question.TagSlugs
+        ));
         return Created($"/questions/{question.Id}", question);
     }
 
@@ -86,7 +97,7 @@ public class QuestionsController(QuestionDbContext db) : ControllerBase
         }
 
         //validate tags is in Db
-        if(InValidTags(dto.Tags))
+        if(await tagService.InValidTags(dto.Tags))
         {
             return BadRequest("One or more tags are invalid.");
         }
@@ -98,14 +109,16 @@ public class QuestionsController(QuestionDbContext db) : ControllerBase
         question.UpdatedAt = DateTime.UtcNow;
 
         await db.SaveChangesAsync();
+        
+        await bus.PublishAsync(new QuestionUpdated(
+            question.Id,
+            question.Title,
+            question.Content,
+            question.TagSlugs
+        ));
         return NoContent();
     }
     
-    private bool InValidTags(List<string> tags)
-    {
-        var validTags = db.Tags.Where(t => tags.Contains(t.Slug)).Select(t => t.Slug).ToList();
-        return validTags.Count != tags.Count;
-    }
     
     [Authorize]
     [HttpDelete("{id}")]
@@ -125,6 +138,8 @@ public class QuestionsController(QuestionDbContext db) : ControllerBase
 
         db.Questions.Remove(question);
         await db.SaveChangesAsync();
+        
+        await bus.PublishAsync(new QuestionDeleted( question.Id));
         return NoContent();
     }
 }
