@@ -21,10 +21,5 @@ public class QuestionCreatedHandler(ITypesenseClient client)
 
         await client.CreateDocument("questions", document);
         Console.WriteLine($"Created question {message.QuestionId}");
-        
-        string StripHtml(string input)
-        {
-            return Regex.Replace(input, "<.*?>", string.Empty);
-        }
     }
 }
