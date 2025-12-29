@@ -9,7 +9,7 @@ public class AnswerCountHandler(ITypesenseClient client)
     {
         await client.UpdateDocument("questions", request.QuestionId, new
         {
-            AnswerCount = request.AnswerCount
+            request.AnswerCount
         });
         Console.WriteLine($"Updated answer count for question {request.QuestionId}");
     }
