@@ -74,6 +74,13 @@ var yarp = builder.AddYarp("gateway")
     .WithEnvironment("VIRTUAL_HOST", "api.overflow.local")
     .WithEnvironment("VIRTUAL_PORT", "5000");
 
+var webapp = builder.AddViteApp(name:"webapp",  appDirectory:"../webapp")
+    .WithPnpm()
+    .WithReference(keycloak)
+    .WithEndpoint("http", config => config.Port = 13000)
+    .WithEnvironment("VIRTUAL_HOST", "app.overflow.local")
+    .WithEnvironment("VIRTUAL_PORT", "13000");
+
 if (!builder.Environment.IsDevelopment())
 {
     builder.AddContainer("nginx-proxy", "nginxproxy/nginx-proxy", "1.9")
