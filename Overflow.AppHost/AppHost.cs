@@ -74,7 +74,7 @@ var yarp = builder.AddYarp("gateway")
     .WithEnvironment("VIRTUAL_HOST", "api.overflow.local")
     .WithEnvironment("VIRTUAL_PORT", "5000");
 
-var webapp = builder.AddViteApp(name:"webapp",  appDirectory:"../webapp")
+var webapp = builder.AddViteApp(name:"webapp",  appDirectory:"../frontend")
     .WithPnpm()
     .WithReference(keycloak)
     .WithEndpoint("http", config => config.Port = 13000)
