@@ -1,4 +1,4 @@
-import { Answer } from '@/types'
+import { Answer } from '@/libs/types'
 import VotingButton from '@/components/question-detail/VotingButton.tsx'
 import AnswerFooter from '@/components/question-detail/AnswerFooter.tsx'
 

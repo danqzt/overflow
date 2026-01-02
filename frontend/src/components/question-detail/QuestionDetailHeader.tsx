@@ -1,6 +1,7 @@
-import { Question } from '@/types'
+import { Question } from '@/libs/types'
 import { Button } from '@heroui/button'
 import { Link } from '@tanstack/react-router'
+import { fuzzyTimeAgo } from '@/libs/util.ts'
 
 type Props = {
   question: Question
@@ -25,9 +26,9 @@ export default function QuestionDetailHeader({ question }: Props) {
          </Button>
        </div>
       <div className="flex items-center gap-6">
-        <Info label="Asked" value={question.createdAt} />
+        <Info label="Asked" value={fuzzyTimeAgo(question.createdAt)} />
         {question.updatedAt && (
-          <Info label="Modified" value={question.updatedAt} />
+          <Info label="Modified" value={fuzzyTimeAgo(question.updatedAt)} />
         )}
         <Info label="Viewed" value={`${question.viewCount + 1} times`} />
       </div>

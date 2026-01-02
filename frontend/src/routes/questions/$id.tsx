@@ -1,4 +1,4 @@
-import { createFileRoute, notFound } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { getQuestionById } from '@/actions/questions.ts'
 import QuestionDetailHeader from '@/components/question-detail/QuestionDetailHeader.tsx'
 import QuestionContent from '@/components/question-detail/QuestionContent.tsx'
@@ -8,19 +8,12 @@ import AnswerHeader from '@/components/question-detail/AnswerHeader.tsx'
 export const Route = createFileRoute('/questions/$id')({
   component: RouteComponent,
   loader: async ({ params }) => {
-    try {
-      return await getQuestionById({ data: { id: params.id } });
-    } catch (err: any) {
-      if (err?.status === 404) {
-        throw notFound();
-      }
-      throw err;
-    }
+    return await getQuestionById({ data: { id: params.id } });
   },
 })
 
 function RouteComponent() {
-  const question = Route.useLoaderData();
+  const question = Route.useLoaderData()!;
 
   return (<div className='w-full'>
     <QuestionDetailHeader question={question}/>

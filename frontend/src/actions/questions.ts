@@ -1,24 +1,25 @@
 import { createServerFn } from '@tanstack/react-start';
-import { Question } from '@/types';
+import { Question } from '@/libs/types';
+import { fetchClient } from '@/libs/fetchClient.ts';
 
-async function fetchQuestions(tag?: string): Promise<Question[]> {
-  let url = 'http://localhost:18001/questions';
+async function fetchQuestions(tag?: string){
+  let url = '/questions';
   if (tag) url += `?tag=${encodeURIComponent(tag)}`;
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(tag ? 'Failed to fetch questions by tag' : 'Failed to fetch questions');
-  }
-  return await response.json();
+  const { data } = await fetchClient<Question[]>(url);
+  return data;
 }
 
-async function fetchQuestionById(id: string): Promise<Question> {
-  const url = `http://localhost:18001/questions/${id}`;
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error('Failed to fetch question by ID');
-  }
-  return await response.json() as Question;
+async function fetchQuestionById(id: string){
+  const { data } = await fetchClient<Question>(`/questions/${id}`);
+  return data;
 }
+
+async function queryQuestions(query: string){
+  const {data, error} = await fetchClient<Question[]>(`/search?query=${encodeURIComponent(query)}`);
+  if(error) throw error;
+  return data;
+}
+
 
 export const getQuestions = createServerFn({ method: 'GET' })
   .handler(async () => fetchQuestions())
@@ -30,3 +31,7 @@ export const getQuestionsByTag = createServerFn({ method: 'GET' })
 export const getQuestionById = createServerFn({ method: 'GET' })
   .inputValidator((data: { id: string }) => data)
   .handler(async ({ data }) => fetchQuestionById(data.id));
+
+export const searchQuestion = createServerFn({ method: 'GET' })
+  .inputValidator((data: { query: string }) => data)
+  .handler(async ({ data }) => queryQuestions(data.query))

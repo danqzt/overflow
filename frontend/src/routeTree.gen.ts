@@ -10,6 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TagsIndexRouteImport } from './routes/tags/index'
+import { Route as SessionIndexRouteImport } from './routes/session/index'
 import { Route as QuestionsIndexRouteImport } from './routes/questions/index'
 import { Route as ProfilesIndexRouteImport } from './routes/profiles/index'
 import { Route as QuestionsIdRouteImport } from './routes/questions/$id'
@@ -27,6 +29,16 @@ import { Route as DemoStartSsrDataOnlyRouteImport } from './routes/demo/start.ss
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TagsIndexRoute = TagsIndexRouteImport.update({
+  id: '/tags/',
+  path: '/tags/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SessionIndexRoute = SessionIndexRouteImport.update({
+  id: '/session/',
+  path: '/session/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const QuestionsIndexRoute = QuestionsIndexRouteImport.update({
@@ -102,6 +114,8 @@ export interface FileRoutesByFullPath {
   '/questions/$id': typeof QuestionsIdRoute
   '/profiles': typeof ProfilesIndexRoute
   '/questions': typeof QuestionsIndexRoute
+  '/session': typeof SessionIndexRoute
+  '/tags': typeof TagsIndexRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
@@ -118,6 +132,8 @@ export interface FileRoutesByTo {
   '/questions/$id': typeof QuestionsIdRoute
   '/profiles': typeof ProfilesIndexRoute
   '/questions': typeof QuestionsIndexRoute
+  '/session': typeof SessionIndexRoute
+  '/tags': typeof TagsIndexRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
@@ -135,6 +151,8 @@ export interface FileRoutesById {
   '/questions/$id': typeof QuestionsIdRoute
   '/profiles/': typeof ProfilesIndexRoute
   '/questions/': typeof QuestionsIndexRoute
+  '/session/': typeof SessionIndexRoute
+  '/tags/': typeof TagsIndexRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
@@ -153,6 +171,8 @@ export interface FileRouteTypes {
     | '/questions/$id'
     | '/profiles'
     | '/questions'
+    | '/session'
+    | '/tags'
     | '/demo/api/names'
     | '/demo/api/tq-todos'
     | '/demo/start/api-request'
@@ -169,6 +189,8 @@ export interface FileRouteTypes {
     | '/questions/$id'
     | '/profiles'
     | '/questions'
+    | '/session'
+    | '/tags'
     | '/demo/api/names'
     | '/demo/api/tq-todos'
     | '/demo/start/api-request'
@@ -185,6 +207,8 @@ export interface FileRouteTypes {
     | '/questions/$id'
     | '/profiles/'
     | '/questions/'
+    | '/session/'
+    | '/tags/'
     | '/demo/api/names'
     | '/demo/api/tq-todos'
     | '/demo/start/api-request'
@@ -202,6 +226,8 @@ export interface RootRouteChildren {
   QuestionsIdRoute: typeof QuestionsIdRoute
   ProfilesIndexRoute: typeof ProfilesIndexRoute
   QuestionsIndexRoute: typeof QuestionsIndexRoute
+  SessionIndexRoute: typeof SessionIndexRoute
+  TagsIndexRoute: typeof TagsIndexRoute
   DemoApiNamesRoute: typeof DemoApiNamesRoute
   DemoApiTqTodosRoute: typeof DemoApiTqTodosRoute
   DemoStartApiRequestRoute: typeof DemoStartApiRequestRoute
@@ -219,6 +245,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tags/': {
+      id: '/tags/'
+      path: '/tags'
+      fullPath: '/tags'
+      preLoaderRoute: typeof TagsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/session/': {
+      id: '/session/'
+      path: '/session'
+      fullPath: '/session'
+      preLoaderRoute: typeof SessionIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/questions/': {
@@ -322,6 +362,8 @@ const rootRouteChildren: RootRouteChildren = {
   QuestionsIdRoute: QuestionsIdRoute,
   ProfilesIndexRoute: ProfilesIndexRoute,
   QuestionsIndexRoute: QuestionsIndexRoute,
+  SessionIndexRoute: SessionIndexRoute,
+  TagsIndexRoute: TagsIndexRoute,
   DemoApiNamesRoute: DemoApiNamesRoute,
   DemoApiTqTodosRoute: DemoApiTqTodosRoute,
   DemoStartApiRequestRoute: DemoStartApiRequestRoute,

@@ -11,12 +11,12 @@ import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 import appCss from '../styles.css?url'
 
 import type { QueryClient } from '@tanstack/react-query'
-import TopNav from '@/components/TopNav.tsx'
+import TopNav from '@/components/TopNav/TopNav.tsx'
 import SideMenu from '@/components/SideMenu.tsx'
 import { AppProvider } from '@/context/AppProvider.tsx'
 import { getThemeServerFn } from '@/actions/theme.ts'
 import ThemeProvider from '@/context/ThemeProvider.tsx'
-import NotFound from '@/components/NotFound.tsx'
+import NotFound from '@/components/error/NotFound.tsx'
 
 interface MyRouterContext {
   queryClient: QueryClient

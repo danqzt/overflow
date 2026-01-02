@@ -269,7 +269,7 @@ public class QuestionsController(QuestionDbContext db, IMessageBus bus, ITagServ
         {
             400 => BadRequest("Opposite of good request"),
             401 => Unauthorized("Unauthorized"),
-            403 => Forbid("Forbidden"),
+            403 => Forbid("Bearer"),
             404 => NotFound("Not Found"),
             500 => throw new Exception("This is server error"),
             _ => ValidationProblem()

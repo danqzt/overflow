@@ -16,6 +16,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+
+builder.Services.AddProblemDetails(opt => opt.CustomizeProblemDetails = (ctx) =>
+{
+    ctx.ProblemDetails.Title = ctx.ProblemDetails.Detail;
+});
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.AddServiceDefaults();

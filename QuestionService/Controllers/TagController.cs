@@ -7,7 +7,7 @@ namespace QuestionService.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class TagController(QuestionDbContext db) : ControllerBase
+public class TagsController(QuestionDbContext db) : ControllerBase
 {
     public async Task<ActionResult<IReadOnlyList<Tag>>> GetTags()
     {

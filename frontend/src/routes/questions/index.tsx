@@ -23,7 +23,7 @@ export const Route = createFileRoute('/questions/')({
 })
 
 function QuestionPage() {
-  const questions = Route.useLoaderData();
+  const questions = Route.useLoaderData()!;
   const params = Route.useSearch();
   return (
     <>

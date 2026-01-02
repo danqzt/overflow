@@ -1,9 +1,8 @@
 import { Link } from '@tanstack/react-router'
 import { AcademicCapIcon } from '@heroicons/react/24/solid'
-import { Input } from '@heroui/input'
-import { MagnifyingGlassIcon } from '@heroicons/react/16/solid'
 import { Button } from '@heroui/button'
-import ThemeToggle from '@/components/ThemeToggle.tsx'
+import ThemeToggle from '@/components/TopNav/ThemeToggle.tsx'
+import SearchInput from '@/components/TopNav/SearchInput.tsx'
 
 
 export default function TopNav() {
@@ -21,7 +20,7 @@ export default function TopNav() {
              <Link to="/">Contact</Link>
            </nav>
          </div>
-         <Input startContent={<MagnifyingGlassIcon className="size-6"/>} placeholder="Search" className="ml-6"/>
+         <SearchInput/>
          <div className="flex basis-1/4 shrink-0 justify-end gap-3">
              <ThemeToggle/>
              <Button color='secondary' variant='bordered'>Login</Button>

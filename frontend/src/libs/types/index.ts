@@ -24,3 +24,10 @@ export interface Answer {
   updatedAt?: string
   accepted: boolean
 }
+
+export interface Tag {
+  slug: string
+  name: string
+  description: string,
+  id: string
+}

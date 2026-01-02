@@ -4,6 +4,7 @@ import * as TanstackQuery from './integrations/tanstack-query/root-provider'
 
 // Import the generated route tree
 import { routeTree } from './routeTree.gen'
+import ErrorPage from '@/components/error/ErrorPage.tsx'
 
 // Create a new router instance
 export const getRouter = () => {
@@ -15,7 +16,10 @@ export const getRouter = () => {
       ...rqContext,
     },
 
-    defaultPreload: 'intent'
+    defaultPreload: 'intent',
+    defaultErrorComponent:({error, reset}) => (
+      <ErrorPage error={error} reset={reset}/>
+    )
   })
 
   setupRouterSsrQueryIntegration({ router, queryClient: rqContext.queryClient })
