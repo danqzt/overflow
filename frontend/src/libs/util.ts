@@ -15,6 +15,14 @@ export function errorToast(error: ServerError) {
        title: error.status || 'Error',
         description: error.message || 'Something went wrong'});
 }
+
+export function successToast(message: string, title?: string) {
+  return addToast({
+    color: 'success',
+    title: title || 'Success!',
+    description: message});
+}
+
 export function handlerError(error: ServerError){
   if(error.status === 404){
     throw notFound();

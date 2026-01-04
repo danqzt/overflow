@@ -1,6 +1,6 @@
 import { Button } from '@heroui/button'
 import { useServerFn } from '@tanstack/react-start'
-import { triggerError } from '@/actions/error.ts'
+import { triggerError } from '@/actions/testActions.ts'
 import { useState, useTransition } from 'react'
 import { handlerError } from '@/libs/util.ts'
 
@@ -18,7 +18,7 @@ export default function ErrorButton() {
     })
   }
   return (
-    <div className="flex gap-6 items-center mt-6 w-full justify-center">
+    <div className="gap-3 flex">
       {[400, 401, 403, 404, 500, 600].map(code => (
         <Button key={code} type="button" color="primary"
                 onPress={() => onClick(code)}

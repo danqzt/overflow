@@ -259,20 +259,5 @@ public class QuestionsController(QuestionDbContext db, IMessageBus bus, ITagServ
         return NoContent();
     }
     #endregion
-
-    [HttpGet("errors")]
-    public ActionResult GetErrorResponse(int code)
-    {
-        ModelState.AddModelError("Problem one", "Validation problem one");
-        ModelState.AddModelError("Problem two", "Validation problem two");
-        return code switch
-        {
-            400 => BadRequest("Opposite of good request"),
-            401 => Unauthorized("Unauthorized"),
-            403 => Forbid("Bearer"),
-            404 => NotFound("Not Found"),
-            500 => throw new Exception("This is server error"),
-            _ => ValidationProblem()
-        };
-    }
+    
 }

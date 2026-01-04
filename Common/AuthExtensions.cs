@@ -11,12 +11,15 @@ public static class AuthExtensions
             {
                 options.RequireHttpsMetadata = false;
                 options.Audience = "overflow";
-                options.TokenValidationParameters.ValidIssuers =
-                [
-                    "http://localhost:16001/realms/overflow",
-                    "http://keycloak/realms/overflow",
-                    "http://id.overflow.local/realms/overflow",
-                ];
+                options.TokenValidationParameters = new()
+                {
+                    ValidIssuers =
+                    [
+                        "http://localhost:16001/realms/overflow",
+                        "http://keycloak/realms/overflow",
+                        "http://id.overflow.local/realms/overflow",
+                    ],
+                };
             });
 
         return services;

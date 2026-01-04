@@ -69,6 +69,7 @@ var yarp = builder.AddYarp("gateway")
         c.AddRoute("/questions/{**catch-all}", questionService);
         c.AddRoute("/tags/{**catch-all}", questionService);
         c.AddRoute("/search/{**catch-all}", searchService);
+        c.AddRoute("/tests/{**catch-all}", questionService);
     })
     .WithEndpoint(18001, 5000, scheme: "http", "gateway-port", isExternal: true)
     .WithEnvironment("VIRTUAL_HOST", "api.overflow.local")
