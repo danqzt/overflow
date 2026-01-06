@@ -31,6 +31,12 @@ builder.Services.AddKeyCloakAuthentication();
 
 builder.AddNpgsqlDbContext<QuestionDbContext>("questionDb");
 
+//improve performance, enable concurrent request
+// builder.Services.AddDbContextFactory<QuestionDbContext>(opt =>
+// {
+//     opt.UseNpgsql(opt.GetConnectionString("questionDb"));
+// });
+
 await builder.UseWolverineWithRabbitMqAsync(opt =>
 {
     opt.PublishAllMessages().ToRabbitExchange("questions");
