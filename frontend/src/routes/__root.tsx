@@ -11,7 +11,7 @@ import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 import appCss from '../styles.css?url'
 
 import type { QueryClient } from '@tanstack/react-query'
-import TopNav from '@/components/TopNav/TopNav.tsx'
+import TopNav from '@/components/topnav/TopNav.tsx'
 import SideMenu from '@/components/SideMenu.tsx'
 import { AppProvider } from '@/context/AppProvider.tsx'
 import { getThemeServerFn } from '@/actions/theme.ts'

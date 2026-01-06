@@ -1,11 +1,11 @@
 import { Link } from '@tanstack/react-router'
 import { AcademicCapIcon } from '@heroicons/react/24/solid'
-import ThemeToggle from '@/components/TopNav/ThemeToggle.tsx'
-import SearchInput from '@/components/TopNav/SearchInput.tsx'
-import LoginButton from '@/components/TopNav/LoginButton.tsx'
+import ThemeToggle from '@/components/topnav/ThemeToggle.tsx'
+import SearchInput from '@/components/topnav/SearchInput.tsx'
+import LoginButton from '@/components/topnav/LoginButton.tsx'
 import { authClient } from '@/libs/authClient.ts'
-import UserMenu from '@/components/TopNav/UserMenu.tsx'
-import RegisterButton from '@/components/TopNav/RegisterButton.tsx'
+import UserMenu from '@/components/topnav/UserMenu.tsx'
+import RegisterButton from '@/components/topnav/RegisterButton.tsx'
 
 export default function TopNav() {
   const { data: session, isPending } = authClient.useSession()
