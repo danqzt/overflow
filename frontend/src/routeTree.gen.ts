@@ -14,6 +14,7 @@ import { Route as TagsIndexRouteImport } from './routes/tags/index'
 import { Route as SessionIndexRouteImport } from './routes/session/index'
 import { Route as QuestionsIndexRouteImport } from './routes/questions/index'
 import { Route as ProfilesIndexRouteImport } from './routes/profiles/index'
+import { Route as QuestionsAskRouteImport } from './routes/questions/ask'
 import { Route as QuestionsIdRouteImport } from './routes/questions/$id'
 import { Route as ProfilesIdRouteImport } from './routes/profiles/$id'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
@@ -50,6 +51,11 @@ const QuestionsIndexRoute = QuestionsIndexRouteImport.update({
 const ProfilesIndexRoute = ProfilesIndexRouteImport.update({
   id: '/profiles/',
   path: '/profiles/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuestionsAskRoute = QuestionsAskRouteImport.update({
+  id: '/questions/ask',
+  path: '/questions/ask',
   getParentRoute: () => rootRouteImport,
 } as any)
 const QuestionsIdRoute = QuestionsIdRouteImport.update({
@@ -118,6 +124,7 @@ export interface FileRoutesByFullPath {
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/profiles/$id': typeof ProfilesIdRoute
   '/questions/$id': typeof QuestionsIdRoute
+  '/questions/ask': typeof QuestionsAskRoute
   '/profiles': typeof ProfilesIndexRoute
   '/questions': typeof QuestionsIndexRoute
   '/session': typeof SessionIndexRoute
@@ -137,6 +144,7 @@ export interface FileRoutesByTo {
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/profiles/$id': typeof ProfilesIdRoute
   '/questions/$id': typeof QuestionsIdRoute
+  '/questions/ask': typeof QuestionsAskRoute
   '/profiles': typeof ProfilesIndexRoute
   '/questions': typeof QuestionsIndexRoute
   '/session': typeof SessionIndexRoute
@@ -157,6 +165,7 @@ export interface FileRoutesById {
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/profiles/$id': typeof ProfilesIdRoute
   '/questions/$id': typeof QuestionsIdRoute
+  '/questions/ask': typeof QuestionsAskRoute
   '/profiles/': typeof ProfilesIndexRoute
   '/questions/': typeof QuestionsIndexRoute
   '/session/': typeof SessionIndexRoute
@@ -178,6 +187,7 @@ export interface FileRouteTypes {
     | '/demo/tanstack-query'
     | '/profiles/$id'
     | '/questions/$id'
+    | '/questions/ask'
     | '/profiles'
     | '/questions'
     | '/session'
@@ -197,6 +207,7 @@ export interface FileRouteTypes {
     | '/demo/tanstack-query'
     | '/profiles/$id'
     | '/questions/$id'
+    | '/questions/ask'
     | '/profiles'
     | '/questions'
     | '/session'
@@ -216,6 +227,7 @@ export interface FileRouteTypes {
     | '/demo/tanstack-query'
     | '/profiles/$id'
     | '/questions/$id'
+    | '/questions/ask'
     | '/profiles/'
     | '/questions/'
     | '/session/'
@@ -236,6 +248,7 @@ export interface RootRouteChildren {
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
   ProfilesIdRoute: typeof ProfilesIdRoute
   QuestionsIdRoute: typeof QuestionsIdRoute
+  QuestionsAskRoute: typeof QuestionsAskRoute
   ProfilesIndexRoute: typeof ProfilesIndexRoute
   QuestionsIndexRoute: typeof QuestionsIndexRoute
   SessionIndexRoute: typeof SessionIndexRoute
@@ -286,6 +299,13 @@ declare module '@tanstack/react-router' {
       path: '/profiles'
       fullPath: '/profiles'
       preLoaderRoute: typeof ProfilesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/questions/ask': {
+      id: '/questions/ask'
+      path: '/questions/ask'
+      fullPath: '/questions/ask'
+      preLoaderRoute: typeof QuestionsAskRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/questions/$id': {
@@ -380,6 +400,7 @@ const rootRouteChildren: RootRouteChildren = {
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
   ProfilesIdRoute: ProfilesIdRoute,
   QuestionsIdRoute: QuestionsIdRoute,
+  QuestionsAskRoute: QuestionsAskRoute,
   ProfilesIndexRoute: ProfilesIndexRoute,
   QuestionsIndexRoute: QuestionsIndexRoute,
   SessionIndexRoute: SessionIndexRoute,
