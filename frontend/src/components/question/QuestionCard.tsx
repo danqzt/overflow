@@ -10,7 +10,7 @@ type Props = {
 }
 export default function QuestionCard({ question }: Props) {
   return (
-    <div className="flex gap-6 px-6 ">
+    <div className="flex gap-6 px-6 w-full">
       <div className="flex flex-col items-end gap-3 text-sm min-w-[6rem]">
         <div>
           {question.votes} {question.votes === 1 ? 'vote' : 'votes'}
@@ -33,7 +33,7 @@ export default function QuestionCard({ question }: Props) {
         </div>
       </div>
       <div className="flex flex-1 justify-between min-h-[8rem]">
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2 w-full">
           <Link
             to="/questions/$id"
             params={{ id: question.id }}

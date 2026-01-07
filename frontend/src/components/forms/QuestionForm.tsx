@@ -9,6 +9,10 @@ import { questionSchema, QuestionSchema } from '@/libs/types/questionSchema.ts'
 import { zodResolver } from '@hookform/resolvers/zod'
 import RichTextEditor from '@/components/rte/RichTextEditor.tsx'
 import clsx from 'clsx'
+import { useMutation } from '@tanstack/react-query'
+import { askQuestion } from '@/actions/questions.ts'
+import { handlerError } from '@/libs/util.ts'
+import { useRouter } from '@tanstack/react-router'
 
 const defaultValue = {
   title: '',
@@ -16,7 +20,7 @@ const defaultValue = {
   tags: [] as string[],
 }
 export function QuestionForm() {
-  const tags = useTagStore((state) => state.tags)
+  const tags = useTagStore((state) => state.tags);
   const {
     register,
     control,
@@ -27,8 +31,20 @@ export function QuestionForm() {
     mode: 'all',
     defaultValues: defaultValue
   })
-  const onSubmit = (data: QuestionSchema) => {
-    console.log(data)
+
+  const { isPending, mutateAsync } = useMutation({
+    mutationFn: askQuestion
+  });
+
+  const router = useRouter();
+
+  const onSubmit = async (formData : QuestionSchema) => {
+    const { data: resp, error } = await mutateAsync({data: formData});
+    if(error) handlerError(error);
+    else {
+      router.navigate({ to: '/questions/$id', params: { id: resp!.id } });
+    }
+
   }
   return (
     <Form
@@ -106,7 +122,7 @@ export function QuestionForm() {
         />
       </div>
       <Button
-        isLoading={isSubmitting}
+        isLoading={isSubmitting || isPending}
         isDisabled={!isValid}
         color="primary"
         className="w-fit"

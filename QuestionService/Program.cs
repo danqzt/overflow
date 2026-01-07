@@ -1,5 +1,6 @@
 using System.Net.Sockets;
 using Common;
+using Ganss.Xss;
 using Microsoft.EntityFrameworkCore;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -28,6 +29,7 @@ builder.AddServiceDefaults();
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<ITagService, TagService>();
 builder.Services.AddKeyCloakAuthentication();
+builder.Services.AddScoped<HtmlSanitizer>();
 
 builder.AddNpgsqlDbContext<QuestionDbContext>("questionDb");
 

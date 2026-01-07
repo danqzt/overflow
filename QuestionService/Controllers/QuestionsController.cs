@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Contracts;
+using Ganss.Xss;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +14,8 @@ namespace QuestionService.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class QuestionsController(QuestionDbContext db, IMessageBus bus, ITagService tagService) : ControllerBase
+public class QuestionsController(QuestionDbContext db, 
+    IMessageBus bus, ITagService tagService, HtmlSanitizer sanitizer) : ControllerBase
 {
     
     #region Questions CRUD
@@ -31,10 +33,11 @@ public class QuestionsController(QuestionDbContext db, IMessageBus bus, ITagServ
         var name = User.FindFirstValue("name");
 
         if (userId is null || name is null) return BadRequest("Invalid user information.");
+
         var question = new Question
         {
             Title = dto.Title,
-            Content = dto.Content,
+            Content = sanitizer.Sanitize(dto.Content),
             TagSlugs = dto.Tags,
             AskerId = userId,
             AskerDisplayName = name,
@@ -109,9 +112,8 @@ public class QuestionsController(QuestionDbContext db, IMessageBus bus, ITagServ
             return BadRequest("One or more tags are invalid.");
         }
         
-
         question.Title = dto.Title;
-        question.Content = dto.Content;
+        question.Content = sanitizer.Sanitize(dto.Content);
         question.TagSlugs = dto.Tags;
         question.UpdatedAt = DateTime.UtcNow;
 
@@ -165,7 +167,7 @@ public class QuestionsController(QuestionDbContext db, IMessageBus bus, ITagServ
         
         var answer = new Answer
         {
-            Content = dto.Content,
+            Content = sanitizer.Sanitize(dto.Content),
             QuestionId = questionId,
             UserId = User.FindFirstValue(ClaimTypes.NameIdentifier)!,
             UserDisplayName = User.FindFirstValue("name")!
@@ -194,7 +196,7 @@ public class QuestionsController(QuestionDbContext db, IMessageBus bus, ITagServ
             return Forbid();
         }
 
-        answer.Content = dto.Content;
+        answer.Content = sanitizer.Sanitize(dto.Content);
         answer.UpdatedAt = DateTime.UtcNow;
 
         await db.SaveChangesAsync();
