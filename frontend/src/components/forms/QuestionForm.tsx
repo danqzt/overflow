@@ -5,47 +5,66 @@ import { Select } from '@heroui/select'
 import { SelectItem } from '@heroui/react'
 import { Button } from '@heroui/button'
 import { Controller, useForm } from 'react-hook-form'
-import { questionSchema, QuestionSchema } from '@/libs/types/questionSchema.ts'
+import {
+  EditQuestionSchema,
+  questionSchema,
+  QuestionSchema,
+} from '@/libs/types/questionSchema.ts'
 import { zodResolver } from '@hookform/resolvers/zod'
 import RichTextEditor from '@/components/rte/RichTextEditor.tsx'
 import clsx from 'clsx'
 import { useMutation } from '@tanstack/react-query'
-import { askQuestion } from '@/actions/questions.ts'
+import { askQuestion, editQuestion } from '@/actions/questions.ts'
 import { handlerError } from '@/libs/util.ts'
 import { useRouter } from '@tanstack/react-router'
+import { Question } from '@/libs/types'
 
+type Props = {
+  question?: Question
+}
 const defaultValue = {
   title: '',
   content: '',
   tags: [] as string[],
 }
-export function QuestionForm() {
-  const tags = useTagStore((state) => state.tags);
+export function QuestionForm({ question }: Props) {
+  const tags = useTagStore((state) => state.tags)
   const {
     register,
     control,
     handleSubmit,
-    formState: { isSubmitting, isValid, errors },
+    formState: { isValid, errors, isDirty },
   } = useForm<QuestionSchema>({
     resolver: zodResolver(questionSchema),
     mode: 'all',
-    defaultValues: defaultValue
+    defaultValues: question
+      ? { ...question, tags: question?.tagSlugs }
+      : defaultValue,
   })
 
   const { isPending, mutateAsync } = useMutation({
-    mutationFn: askQuestion
-  });
+    mutationFn: (request: EditQuestionSchema | QuestionSchema) => {
+      return question ? editQuestion({ data : request as EditQuestionSchema}) : askQuestion({ data: request })
+    },
+  })
 
-  const router = useRouter();
+  const router = useRouter()
 
-  const onSubmit = async (formData : QuestionSchema) => {
-    const { data: resp, error } = await mutateAsync({data: formData});
-    if(error) handlerError(error);
-    else {
-      router.navigate({ to: '/questions/$id', params: { id: resp!.id } });
+  const onSubmit = async (formData: QuestionSchema) => {
+    const payload = question ? { id: question.id, ...formData } : formData
+
+    const { data: resp,  error } = await mutateAsync(payload)
+
+    if (error) {
+      handlerError(error)
+      return
     }
 
+    const questionId = question?.id ?? resp!.id
+    router.navigate({ to: '/questions/$id', params: { id: questionId } })
   }
+  const disabled = question ? !isDirty || !isValid : !isValid
+
   return (
     <Form
       className="flex flex-col gap-3 p-6 shadow-xl bg-white dark:bg-black"
@@ -122,13 +141,13 @@ export function QuestionForm() {
         />
       </div>
       <Button
-        isLoading={isSubmitting || isPending}
-        isDisabled={!isValid}
+        isLoading={ isPending}
+        isDisabled={disabled}
         color="primary"
         className="w-fit"
         type="submit"
       >
-        Post your question
+        {question ? 'Edit' : 'Post'} your question
       </Button>
     </Form>
   )

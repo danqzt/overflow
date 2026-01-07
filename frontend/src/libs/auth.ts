@@ -22,6 +22,13 @@ export const auth = betterAuth({
           scopes: ['openid', 'profile', 'email', 'offline_access'],
           authorizationUrlParams: {
             prompt: 'login',
+          },
+          mapProfileToUser: (profile) => {
+            return {
+              userId: profile.sub,
+              name: profile.name,
+              email: profile.email,
+            }
           }
         }
       ],
@@ -30,6 +37,14 @@ export const auth = betterAuth({
   ],
   account:{
     updateAccountOnSignIn: false,
+  },
+  user: {
+    additionalFields: {
+      userId: {
+        type: 'string',
+        required: false
+      }
+    }
   }
 })
 

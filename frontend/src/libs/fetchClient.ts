@@ -41,7 +41,7 @@ export async function fetchClient<T>(
      return {  error: { message: errorData || 'An error occurred', status: response.status } };
    }
 
-   const data = await response.json();
+   const data = response.status === 204 ? {} : await response.json();
    return { data };
 
 }

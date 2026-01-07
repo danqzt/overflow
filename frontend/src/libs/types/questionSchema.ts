@@ -22,4 +22,9 @@ export const questionSchema = z.object({
     .max(5, 'You can select up to 5 tags'),
 })
 
+export const editQuestionSchema = questionSchema.extend({
+  id: z.string().uuid('Invalid question ID'),
+});
+
 export type QuestionSchema = z.infer<typeof questionSchema>
+export type EditQuestionSchema = z.infer<typeof editQuestionSchema>

@@ -1,7 +1,10 @@
 import { createServerFn } from '@tanstack/react-start';
 import { Question } from '@/libs/types';
 import { fetchClient } from '@/libs/fetchClient.ts';
-import { questionSchema } from '@/libs/types/questionSchema.ts'
+import {
+  editQuestionSchema,
+  questionSchema,
+} from '@/libs/types/questionSchema.ts'
 
 async function fetchQuestions(tag?: string){
   let url = '/questions';
@@ -11,8 +14,7 @@ async function fetchQuestions(tag?: string){
 }
 
 async function fetchQuestionById(id: string){
-  const { data } = await fetchClient<Question>(`/questions/${id}`);
-  return data;
+  return await fetchClient<Question>(`/questions/${id}`);
 }
 
 async function queryQuestions(query: string){
@@ -42,5 +44,13 @@ export const askQuestion = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     return await fetchClient<Question>('/questions', 'POST', {
       body: {...data},
+    });
+  });
+export const editQuestion = createServerFn({ method: 'POST' })
+  .inputValidator(editQuestionSchema)
+  .handler(async ({ data }) => {
+    const { id, ...rest } = data;
+    return await fetchClient<Question>(`/questions/${id}`, 'PUT', {
+      body: {...rest},
     });
   });

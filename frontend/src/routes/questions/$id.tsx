@@ -1,9 +1,10 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, notFound } from '@tanstack/react-router'
 import { getQuestionById } from '@/actions/questions.ts'
 import QuestionDetailHeader from '@/components/question-detail/QuestionDetailHeader.tsx'
 import QuestionContent from '@/components/question-detail/QuestionContent.tsx'
 import AnswerContent from '@/components/question-detail/AnswerContent.tsx'
 import AnswerHeader from '@/components/question-detail/AnswerHeader.tsx'
+import { handlerError } from '@/libs/util.ts'
 
 export const Route = createFileRoute('/questions/$id')({
   component: RouteComponent,
@@ -13,7 +14,10 @@ export const Route = createFileRoute('/questions/$id')({
 })
 
 function RouteComponent() {
-  const question = Route.useLoaderData()!;
+  const {data: question, error} = Route.useLoaderData()!;
+
+  if(error) handlerError(error);
+  if(!question) throw notFound();
 
   return (<div className='w-full'>
     <QuestionDetailHeader question={question}/>
