@@ -5,6 +5,7 @@ import QuestionContent from '@/components/question-detail/QuestionContent.tsx'
 import AnswerContent from '@/components/question-detail/AnswerContent.tsx'
 import AnswerHeader from '@/components/question-detail/AnswerHeader.tsx'
 import { handlerError } from '@/libs/util.ts'
+import AnswerForm from '@/components/forms/AnswerForm.tsx'
 
 export const Route = createFileRoute('/questions/$id')({
   component: RouteComponent,
@@ -28,5 +29,6 @@ function RouteComponent() {
     {question.answers.map(answer => (
       <AnswerContent answer={answer} key={answer.id}/>
     ))}
+    <AnswerForm questionId={question.id}/>
   </div>)
 }

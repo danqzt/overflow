@@ -1,10 +1,11 @@
 import { createServerFn } from '@tanstack/react-start';
-import { Question } from '@/libs/types';
+import { Answer, Question } from '@/libs/types'
 import { fetchClient } from '@/libs/server/fetchClient.ts';
 import {
   editQuestionSchema,
-  questionSchema,
-} from '@/libs/types/questionSchema.ts'
+  postAnswerSchema,
+  schema,
+} from '@/libs/types/schema.ts'
 
 async function fetchQuestions(tag?: string){
   let url = '/questions';
@@ -40,7 +41,7 @@ export const searchQuestion = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => queryQuestions(data.query))
 
 export const askQuestion = createServerFn({ method: 'POST' })
-  .inputValidator(questionSchema)
+  .inputValidator(schema)
   .handler(async ({ data }) => {
     return await fetchClient<Question>('/questions', 'POST', {
       body: {...data},
@@ -58,3 +59,13 @@ export const editQuestion = createServerFn({ method: 'POST' })
 export const deleteQuestion = createServerFn({ method: 'POST' })
   .inputValidator((data: { id: string }) => data)
   .handler(async ({ data }) => fetchClient<{}>(`/questions/${data.id}`, 'DELETE'));
+
+export const postAnswer = createServerFn({ method: 'POST' })
+  .inputValidator(postAnswerSchema)
+  .handler(async ({ data }) => {
+    const { questionId, ...rest } = data;
+    return await fetchClient<Answer>(`/questions/${questionId}/answers`, 'POST', {
+      body: {...rest},
+    });
+
+  });

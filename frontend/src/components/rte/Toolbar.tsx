@@ -82,7 +82,7 @@ export default function Toolbar({ editor }: Props) {
           {option.icon}
         </Button>
       ))}
-      <Button isIconOnly radius="sm" size="sm" as={CloudinaryWidget} signatureEndpoint="/api/sign-image"  onUpload={onUploadImage}>
+      <Button isIconOnly radius="sm" size="sm" as={CloudinaryWidget} signatureEndpoint="/api/sign-image"  onUpload={onUploadImage} type="button">
         <PhotoIcon className="w-5 h-5" />
       </Button>
     </div>

@@ -7,17 +7,16 @@ import { Button } from '@heroui/button'
 import { Controller, useForm } from 'react-hook-form'
 import {
   EditQuestionSchema,
-  questionSchema,
+  schema,
   QuestionSchema,
-} from '@/libs/types/questionSchema.ts'
+} from '@/libs/types/schema.ts'
 import { zodResolver } from '@hookform/resolvers/zod'
-import RichTextEditor from '@/components/rte/RichTextEditor.tsx'
-import clsx from 'clsx'
 import { useMutation } from '@tanstack/react-query'
 import { askQuestion, editQuestion } from '@/actions/questions.ts'
 import { handlerError } from '@/libs/util.ts'
 import { useRouter } from '@tanstack/react-router'
 import { Question } from '@/libs/types'
+import { RichTextField } from '@/components/forms/RichTextField.tsx'
 
 type Props = {
   question?: Question
@@ -35,7 +34,7 @@ export function QuestionForm({ question }: Props) {
     handleSubmit,
     formState: { isValid, errors, isDirty },
   } = useForm<QuestionSchema>({
-    resolver: zodResolver(questionSchema),
+    resolver: zodResolver(schema),
     mode: 'all',
     defaultValues: question
       ? { ...question, tags: question?.tagSlugs }
@@ -44,7 +43,9 @@ export function QuestionForm({ question }: Props) {
 
   const { isPending, mutateAsync } = useMutation({
     mutationFn: (request: EditQuestionSchema | QuestionSchema) => {
-      return question ? editQuestion({ data : request as EditQuestionSchema}) : askQuestion({ data: request })
+      return question
+        ? editQuestion({ data: request as EditQuestionSchema })
+        : askQuestion({ data: request })
     },
   })
 
@@ -53,7 +54,7 @@ export function QuestionForm({ question }: Props) {
   const onSubmit = async (formData: QuestionSchema) => {
     const payload = question ? { id: question.id, ...formData } : formData
 
-    const { data: resp,  error } = await mutateAsync(payload)
+    const { data: resp, error } = await mutateAsync(payload)
 
     if (error) {
       handlerError(error)
@@ -84,33 +85,7 @@ export function QuestionForm({ question }: Props) {
       </div>
       <div className="flex flex-col gap-3 w-full">
         <h3 className="text-2xl font-semibold">Body</h3>
-        <Controller
-          name="content"
-          control={control}
-          render={({ field, fieldState }) => (
-            <>
-              <p
-                className={clsx('text-sm', {
-                  'text-danger': fieldState.error?.message,
-                })}
-              >
-                Include all the information someone would need to answer your
-                question.
-              </p>
-              <RichTextEditor
-                onChange={field.onChange}
-                onBlur={field.onBlur}
-                value={field.value}
-                errorMessage={fieldState.error?.message}
-              />
-              {fieldState.error?.message && (
-                <span className="text-xs text-danger -mt-1">
-                  {fieldState.error?.message}
-                </span>
-              )}
-            </>
-          )}
-        />
+        <RichTextField name="content" control={control} />
       </div>
       <div className="flex flex-col gap-3 w-full">
         <h3 className="text-2xl font-semibold">Tags</h3>
@@ -118,30 +93,32 @@ export function QuestionForm({ question }: Props) {
           Add up to 5 tags to describe what your question is about. Start typing
           to see suggestions.
         </p>
-        <Controller
-          control={control}
-          name="tags"
-          render={({ field, fieldState }) => (
-            <Select
-              className="w-full"
-              label="Choose up to 5 tags that describe your question"
-              isClearable
-              selectionMode="multiple"
-              disallowEmptySelection
-              items={tags}
-              selectedKeys={field.value ?? []}
-              onBlur={field.onBlur}
-              onSelectionChange={(keys) => field.onChange(Array.from(keys))}
-              isInvalid={fieldState.invalid}
-              errorMessage={fieldState.error?.message}
-            >
-              {(tag) => <SelectItem key={tag.id}>{tag.name}</SelectItem>}
-            </Select>
-          )}
-        />
+        {tags.length > 0 && (
+          <Controller
+            control={control}
+            name="tags"
+            render={({ field, fieldState }) => (
+              <Select
+                className="w-full"
+                label="Choose up to 5 tags that describe your question"
+                isClearable
+                selectionMode="multiple"
+                disallowEmptySelection
+                items={tags}
+                selectedKeys={field.value ?? []}
+                onBlur={field.onBlur}
+                onSelectionChange={(keys) => field.onChange(Array.from(keys))}
+                isInvalid={fieldState.invalid}
+                errorMessage={fieldState.error?.message}
+              >
+                {(tag) => <SelectItem key={tag.id}>{tag.name}</SelectItem>}
+              </Select>
+            )}
+          />
+        )}
       </div>
       <Button
-        isLoading={ isPending}
+        isLoading={isPending}
         isDisabled={disabled}
         color="primary"
         className="w-fit"

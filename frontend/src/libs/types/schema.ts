@@ -13,7 +13,7 @@ const contentField = z.string()
     message: 'Content must be at least 10 characters',
   })
 
-export const questionSchema = z.object({
+export const schema = z.object({
   title: required('Title'),
   content: contentField,
   tags: z
@@ -22,9 +22,19 @@ export const questionSchema = z.object({
     .max(5, 'You can select up to 5 tags'),
 })
 
-export const editQuestionSchema = questionSchema.extend({
+export const editQuestionSchema = schema.extend({
   id: z.string().uuid('Invalid question ID'),
 });
 
-export type QuestionSchema = z.infer<typeof questionSchema>
+export const answerSchema = z.object({
+  content: contentField,
+});
+
+export const postAnswerSchema = answerSchema.extend({
+  questionId: z.string().uuid('Invalid question ID'),
+});
+
+export type QuestionSchema = z.infer<typeof schema>
 export type EditQuestionSchema = z.infer<typeof editQuestionSchema>
+export type AnswerSchema = z.infer<typeof answerSchema>
+export type PostAnswer = z.infer<typeof postAnswerSchema>
