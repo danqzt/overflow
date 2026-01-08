@@ -1,5 +1,5 @@
 import { Response } from '@/libs/types/Response.ts';
-import { getAccessToken } from '@/libs/auth.ts'
+import { getAccessToken } from '@/libs/server/auth.ts'
 import { getRequestHeaders } from '@tanstack/react-start/server'
 
 

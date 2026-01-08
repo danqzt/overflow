@@ -1,4 +1,4 @@
-import { fetchClient } from '@/libs/fetchClient.ts'
+import { fetchClient } from '@/libs/server/fetchClient.ts'
 import { Tag } from '@/libs/types'
 import { createServerFn } from '@tanstack/react-start'
 

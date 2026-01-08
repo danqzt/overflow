@@ -3,6 +3,7 @@ import { Button } from '@heroui/button'
 import { Link } from '@tanstack/react-router'
 import { fuzzyTimeAgo } from '@/libs/util.ts'
 import { authClient } from '@/libs/authClient.ts'
+import DeleteQuestionButton from '@/components/question-detail/DeleteQuestionButton.tsx'
 
 type Props = {
   question: Question
@@ -40,17 +41,20 @@ export default function QuestionDetailHeader({ question }: Props) {
           )}
           <Info label="Viewed" value={`${question.viewCount + 1} times`} />
         </div>
-        { data?.user?.userId === question.askerId &&
-        <Button
-          as={Link}
-          to={`/questions//edit/${question.id}`}
-          size="sm"
-          variant="faded"
-          color="primary"
-        >
-          Edit
-        </Button>
-        }
+        {data?.user?.userId === question.askerId && (
+          <div className="flex items-center gap-3">
+            <Button
+              as={Link}
+              to={`/questions//edit/${question.id}`}
+              size="sm"
+              variant="faded"
+              color="primary"
+            >
+              Edit
+            </Button>
+            <DeleteQuestionButton id={question.id} />
+          </div>
+        )}
       </div>
     </div>
   )

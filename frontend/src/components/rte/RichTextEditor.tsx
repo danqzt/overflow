@@ -1,8 +1,11 @@
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Toolbar from '@/components/rte/Toolbar.tsx'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import clsx from 'clsx'
+import Image from '@tiptap/extension-image'
+import { useDeleteImage } from '@/libs/hooks.ts'
+import { extractPublicIdsFromHtml } from '@/libs/util.ts'
 
 type Props = {
   value: string
@@ -16,8 +19,11 @@ export default function RichTextEditor({
   onBlur,
   errorMessage,
 }: Props) {
+
+  const { mutateAsync } = useDeleteImage();
+  const prevPublicIds = useRef<string[]>([])
   const editor = useEditor({
-    extensions: [StarterKit],
+    extensions: [StarterKit, Image],
     editorProps: {
       attributes: {
         class: clsx(
@@ -31,12 +37,21 @@ export default function RichTextEditor({
     },
     onBlur : onBlur,
     onUpdate : ({ editor }) => {
-      console.log("CHANGED:", editor.getHTML());
-      onChange(editor.getHTML())
+      const html =  editor.getHTML();
+      onChange(html);
+      const currentPublicIds = extractPublicIdsFromHtml(html);
+      const prev = prevPublicIds.current;
+      const deleted = prev.filter((id => !currentPublicIds.includes(id)));
+      if(deleted.length > 0){
+        deleted.forEach(async (id) => {
+          await mutateAsync(id);
+          console.log("deleted image:", id)
+        });
+      }
+      prevPublicIds.current = currentPublicIds;
     },
     immediatelyRender: false,
   })
-
   useEffect(() => {
     if (editor && value !== editor.getHTML()) {
       editor.commands.setContent(value)

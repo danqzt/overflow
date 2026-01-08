@@ -12,6 +12,9 @@
     "check": "prettier --write . && eslint --fix"
   },
   "dependencies": {
+    "@cloudinary-util/url-loader": "^6.2.0",
+    "@cloudinary/react": "^1.14.3",
+    "@cloudinary/url-gen": "^1.22.0",
     "@heroicons/react": "^2.2.0",
     "@heroui/react": "^2.8.7",
     "@hookform/resolvers": "^5.2.2",
@@ -24,10 +27,12 @@
     "@tanstack/react-router-ssr-query": "^1.131.7",
     "@tanstack/react-start": "^1.132.0",
     "@tanstack/router-plugin": "^1.132.0",
+    "@tiptap/extension-image": "^3.15.2",
     "@tiptap/pm": "^3.15.0",
     "@tiptap/react": "^3.15.0",
     "@tiptap/starter-kit": "^3.15.0",
     "better-auth": "^1.4.10",
+    "cloudinary": "^2.8.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.23.26",
@@ -42,11 +47,13 @@
     "zustand": "^5.0.9"
   },
   "devDependencies": {
+    "@cloudinary-util/types": "^1.6.0",
     "@tailwindcss/typography": "^0.5.19",
     "@tanstack/devtools-vite": "^0.3.11",
     "@tanstack/eslint-config": "^0.3.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.2.0",
+    "@types/cloudinary-uploadwidget-browser": "^2.3.5",
     "@types/node": "^22.10.2",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",

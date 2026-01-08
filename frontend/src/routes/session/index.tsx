@@ -3,6 +3,7 @@ import ErrorButton from '@/components/session/ErrorButton.tsx'
 import AuthButton from '@/components/session/AuthButton.tsx'
 import { Snippet } from '@heroui/react'
 import { authClient } from '@/libs/authClient.ts'
+import { CloudinaryWidget } from '@/components/rte/CloudinaryWidget.tsx'
 
 export const Route = createFileRoute('/session/')({
   component: RouteComponent,
@@ -26,6 +27,7 @@ async function RouteComponent() {
       <div className="flex items-start gap-3 justify-center mt-6 mx-2 flex-wrap">
         <ErrorButton />
         <AuthButton />
+        <CloudinaryWidget signatureEndpoint='/api/sign-image' onUpload={(id) => console.log("UPLOADED", id)} />
       </div>
     </div>
   )

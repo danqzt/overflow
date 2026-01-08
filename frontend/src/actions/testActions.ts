@@ -1,4 +1,4 @@
-import {fetchClient} from "@/libs/fetchClient.ts";
+import {fetchClient} from "@/libs/server/fetchClient.ts";
 import { createServerFn } from '@tanstack/react-start'
 
 export const triggerError = createServerFn({ method: 'GET' })

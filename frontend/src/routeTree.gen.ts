@@ -18,6 +18,7 @@ import { Route as QuestionsAskRouteImport } from './routes/questions/ask'
 import { Route as QuestionsIdRouteImport } from './routes/questions/$id'
 import { Route as ProfilesIdRouteImport } from './routes/profiles/$id'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
+import { Route as ApiSignImageRouteImport } from './routes/api/sign-image'
 import { Route as QuestionsEditIdRouteImport } from './routes/questions/edit.$id'
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
 import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api-request'
@@ -74,6 +75,11 @@ const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
   path: '/demo/tanstack-query',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiSignImageRoute = ApiSignImageRouteImport.update({
+  id: '/api/sign-image',
+  path: '/api/sign-image',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const QuestionsEditIdRoute = QuestionsEditIdRouteImport.update({
   id: '/questions/edit/$id',
   path: '/questions/edit/$id',
@@ -127,6 +133,7 @@ const DemoStartSsrDataOnlyRoute = DemoStartSsrDataOnlyRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/sign-image': typeof ApiSignImageRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/profiles/$id': typeof ProfilesIdRoute
   '/questions/$id': typeof QuestionsIdRoute
@@ -148,6 +155,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/sign-image': typeof ApiSignImageRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/profiles/$id': typeof ProfilesIdRoute
   '/questions/$id': typeof QuestionsIdRoute
@@ -170,6 +178,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/sign-image': typeof ApiSignImageRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/profiles/$id': typeof ProfilesIdRoute
   '/questions/$id': typeof QuestionsIdRoute
@@ -193,6 +202,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/api/sign-image'
     | '/demo/tanstack-query'
     | '/profiles/$id'
     | '/questions/$id'
@@ -214,6 +224,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/api/sign-image'
     | '/demo/tanstack-query'
     | '/profiles/$id'
     | '/questions/$id'
@@ -235,6 +246,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/api/sign-image'
     | '/demo/tanstack-query'
     | '/profiles/$id'
     | '/questions/$id'
@@ -257,6 +269,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiSignImageRoute: typeof ApiSignImageRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
   ProfilesIdRoute: typeof ProfilesIdRoute
   QuestionsIdRoute: typeof QuestionsIdRoute
@@ -342,6 +355,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoTanstackQueryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/sign-image': {
+      id: '/api/sign-image'
+      path: '/api/sign-image'
+      fullPath: '/api/sign-image'
+      preLoaderRoute: typeof ApiSignImageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/questions/edit/$id': {
       id: '/questions/edit/$id'
       path: '/questions/edit/$id'
@@ -417,6 +437,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiSignImageRoute: ApiSignImageRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
   ProfilesIdRoute: ProfilesIdRoute,
   QuestionsIdRoute: QuestionsIdRoute,

@@ -1,6 +1,6 @@
 import { createServerFn } from '@tanstack/react-start';
 import { Question } from '@/libs/types';
-import { fetchClient } from '@/libs/fetchClient.ts';
+import { fetchClient } from '@/libs/server/fetchClient.ts';
 import {
   editQuestionSchema,
   questionSchema,
@@ -54,3 +54,7 @@ export const editQuestion = createServerFn({ method: 'POST' })
       body: {...rest},
     });
   });
+
+export const deleteQuestion = createServerFn({ method: 'POST' })
+  .inputValidator((data: { id: string }) => data)
+  .handler(async ({ data }) => fetchClient<{}>(`/questions/${data.id}`, 'DELETE'));
