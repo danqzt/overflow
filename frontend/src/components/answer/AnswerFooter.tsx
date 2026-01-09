@@ -7,12 +7,14 @@ import { deleteAnswer } from '@/actions/questions.ts'
 import { useRouter } from '@tanstack/react-router'
 import { authClient } from '@/libs/authClient.ts'
 import { useSelectedAnswer } from '@/context/useSelectedAnswer.ts'
+import { useState } from 'react'
 
 type Props = {
   answer: Answer
 }
 export default function AnswerFooter({ answer }: Props) {
 
+  const [deleteTarget, setDeleteTarget] =  useState<string | null>(null);
   const { data } = authClient.useSession();
 
   const { isPending, mutateAsync } = useMutation({
@@ -26,6 +28,7 @@ export default function AnswerFooter({ answer }: Props) {
       const { error } = await mutateAsync({
         data: { answerId: answer.id, questionId: answer.questionId },
       })
+      setDeleteTarget(answer.id)
       if (error) handlerError(error)
       else router.invalidate()
     }
@@ -34,9 +37,9 @@ export default function AnswerFooter({ answer }: Props) {
 
   return (
     <div className="flex flex-between">
-      { data?.user.userId === answer.userId && (<div className="flex justify-start items-center gap-3">
+      { data?.user.userId === answer.userId && (<div className="flex justify-start items-center gap-2">
         <Button
-          variant="faded"
+          variant="light"
           size="md"
           color="primary"
           className="normal-case"
@@ -46,13 +49,13 @@ export default function AnswerFooter({ answer }: Props) {
           Edit
         </Button>
         <Button
-          variant="faded"
+          variant="light"
           size="md"
           color="danger"
           className="normal-case"
           type="button"
           onPress={handleDelete}
-          isLoading={isPending}
+          isLoading={isPending && deleteTarget === answer.id}
           isDisabled={isPending}
         >
           Delete

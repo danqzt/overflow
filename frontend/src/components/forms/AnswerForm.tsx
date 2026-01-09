@@ -19,7 +19,7 @@ type Props = {
   questionId: string
 }
 export default function AnswerForm({ questionId }: Props) {
-  const { answer, setSelectedAnswer } = useSelectedAnswer()
+  const { answer, clearSelectedAnswer } = useSelectedAnswer()
 
   const { isPending, mutateAsync } = useMutation({
     mutationFn:  (request: PostAnswerSchema | EditAnswerSchema) => {
@@ -46,7 +46,7 @@ export default function AnswerForm({ questionId }: Props) {
   }
   const onClear = () => {
     reset({ content: '' });
-    setSelectedAnswer(undefined)
+    clearSelectedAnswer();
   }
   useEffect(() => {
     if(answer){
@@ -54,7 +54,7 @@ export default function AnswerForm({ questionId }: Props) {
       setTimeout(()=> document.getElementById('answer-form')?.scrollIntoView({behavior: 'smooth'}), 100);
 
       //unmounting
-      return () => setSelectedAnswer(undefined);
+      return () => clearSelectedAnswer();
     }
   }, [answer])
 

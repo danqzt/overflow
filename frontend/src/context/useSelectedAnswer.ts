@@ -2,11 +2,13 @@ import { Answer } from '@/libs/types'
 import { create } from 'zustand/react'
 
 type SelectedAnswer = {
-  answer?: Answer,
-  setSelectedAnswer: (answer: Answer| undefined) => void,
+  answer?: Answer | null,
+  setSelectedAnswer: (answer: Answer| null) => void,
+  clearSelectedAnswer: () => void,
 }
 
-export const useSelectedAnswer = create<SelectedAnswer>((set, get) => ({
+export const useSelectedAnswer = create<SelectedAnswer>((set) => ({
   setSelectedAnswer: (answer) => set({ answer }),
-  answer: get()?.answer
+  answer: null,
+  clearSelectedAnswer: () => set({ answer: null }),
 }));
