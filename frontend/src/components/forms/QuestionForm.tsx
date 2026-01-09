@@ -52,9 +52,7 @@ export function QuestionForm({ question }: Props) {
   const router = useRouter()
 
   const onSubmit = async (formData: QuestionSchema) => {
-    const payload = question ? { id: question.id, ...formData } : formData
-
-    const { data: resp, error } = await mutateAsync(payload)
+    const { data: resp, error } = await mutateAsync({...formData, ...(question && {id: question.id}) })
 
     if (error) {
       handlerError(error)

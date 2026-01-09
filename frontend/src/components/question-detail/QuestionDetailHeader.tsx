@@ -46,7 +46,7 @@ export default function QuestionDetailHeader({ question }: Props) {
             <Button
               as={Link}
               to={`/questions//edit/${question.id}`}
-              size="sm"
+              size="md"
               variant="faded"
               color="primary"
             >

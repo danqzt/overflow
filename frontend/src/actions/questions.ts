@@ -2,6 +2,7 @@ import { createServerFn } from '@tanstack/react-start';
 import { Answer, Question } from '@/libs/types'
 import { fetchClient } from '@/libs/server/fetchClient.ts';
 import {
+  editAnswerSchema,
   editQuestionSchema,
   postAnswerSchema,
   schema,
@@ -68,4 +69,20 @@ export const postAnswer = createServerFn({ method: 'POST' })
       body: {...rest},
     });
 
+  });
+
+export const editAnswer = createServerFn({ method: 'POST' })
+  .inputValidator(editAnswerSchema)
+  .handler(async ({ data }) => {
+    const { questionId, answerId,...rest } = data;
+    return await fetchClient<{}>(`/questions/${questionId}/answers/${answerId}`, 'PUT', {
+      body: {...rest},
+    });
+  });
+
+export const deleteAnswer = createServerFn({ method: 'POST' })
+  .inputValidator((data: { questionId: string, answerId: string }) => data)
+  .handler(async ({ data }) => {
+    const { questionId, answerId} = data;
+    return await fetchClient<{}>(`/questions/${questionId}/answers/${answerId}`, 'DELETE');
   });

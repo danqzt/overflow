@@ -2,10 +2,11 @@ import { createFileRoute, notFound } from '@tanstack/react-router'
 import { getQuestionById } from '@/actions/questions.ts'
 import QuestionDetailHeader from '@/components/question-detail/QuestionDetailHeader.tsx'
 import QuestionContent from '@/components/question-detail/QuestionContent.tsx'
-import AnswerContent from '@/components/question-detail/AnswerContent.tsx'
-import AnswerHeader from '@/components/question-detail/AnswerHeader.tsx'
+import AnswerContent from '@/components/answer/AnswerContent.tsx'
+import AnswerHeader from '@/components/answer/AnswerHeader.tsx'
 import { handlerError } from '@/libs/util.ts'
 import AnswerForm from '@/components/forms/AnswerForm.tsx'
+import { authClient } from '@/libs/authClient.ts'
 
 export const Route = createFileRoute('/questions/$id')({
   component: RouteComponent,
@@ -16,6 +17,7 @@ export const Route = createFileRoute('/questions/$id')({
 
 function RouteComponent() {
   const {data: question, error} = Route.useLoaderData()!;
+  const { data: session} = authClient.useSession();
 
   if(error) handlerError(error);
   if(!question) throw notFound();
@@ -29,6 +31,6 @@ function RouteComponent() {
     {question.answers.map(answer => (
       <AnswerContent answer={answer} key={answer.id}/>
     ))}
-    <AnswerForm questionId={question.id}/>
+    { session && <AnswerForm questionId={question.id}/> }
   </div>)
 }

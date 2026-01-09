@@ -14,15 +14,17 @@ export default function DeleteQuestionButton({ id }: Props) {
 
   const router = useRouter()
   const onClick = async () => {
-    const { error } = await mutateAsync({ data: { id } })
-    if (error) handlerError(error)
-    else router.navigate({ to: '/questions' })
+    if (confirm('Are you sure you want to delete this question?')) {
+      const { error } = await mutateAsync({ data: { id } })
+      if (error) handlerError(error)
+      else router.navigate({ to: '/questions' })
+    }
   }
   return (
     <Button
       isDisabled={isPending}
       as={Link}
-      size="sm"
+      size="md"
       variant="faded"
       color="danger"
       onPress={onClick}
