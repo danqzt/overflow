@@ -75,18 +75,13 @@ var yarp = builder.AddYarp("gateway")
     .WithEnvironment("VIRTUAL_HOST", "api.overflow.local")
     .WithEnvironment("VIRTUAL_PORT", "5000");
 
-var webapp = builder.AddViteApp(name:"webapp",  appDirectory:"../frontend")
+var webapp = builder.AddViteApp(name: "webapp", appDirectory: "../frontend")
     .WithPnpm()
     .WithReference(keycloak)
     .WithEndpoint("http", config => config.Port = 13000)
     .WithEnvironment("VIRTUAL_HOST", "app.overflow.local")
-    .WithEnvironment("VIRTUAL_PORT", "13000")
-    .WithEnvironment("API_URL","${API_URL}")
-    .WithEnvironment("BETTER_AUTH_SECRET","${BETTER_AUTH_SECRET}")
-    .WithEnvironment("CLOUDINARY_API_SECRET","${CLOUDINARY_API_SECRET}")
-    .WithEnvironment("AUTH_KEYCLOAK_CLIENT_SECRET","${AUTH_KEYCLOAK_CLIENT_SECRET}")
-    .WithEnvironment("AUTH_KEYCLOAK_ISSUER_INTERNAL","${AUTH_KEYCLOAK_ISSUER_INTERNAL}")
-    .PublishAsDockerFile();
+    .WithEnvironment("VIRTUAL_PORT", "13000");
+
 
 if (!builder.Environment.IsDevelopment())
 {
@@ -99,5 +94,12 @@ if (!builder.Environment.IsDevelopment())
     
     keycloak.WithEnvironment("KC_HOSTNAME", "https://id.overflow.local")
         .WithEnvironment("KC_HOSTNAME_BACKCHANNEL_DYNAMIC", "true");
+    
+    webapp.WithEnvironment("API_URL","${API_URL}")
+        .WithEnvironment("BETTER_AUTH_SECRET","${BETTER_AUTH_SECRET}")
+        .WithEnvironment("CLOUDINARY_API_SECRET","${CLOUDINARY_API_SECRET}")
+        .WithEnvironment("AUTH_KEYCLOAK_CLIENT_SECRET","${AUTH_KEYCLOAK_CLIENT_SECRET}")
+        .WithEnvironment("AUTH_KEYCLOAK_ISSUER_INTERNAL","${AUTH_KEYCLOAK_ISSUER_INTERNAL}")
+        .PublishAsDockerFile();
 }
 builder.Build().Run();
