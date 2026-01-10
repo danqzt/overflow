@@ -1,4 +1,4 @@
-import { Question } from '@/libs/types'
+import type { Question } from '@/libs/types'
 import VotingButton from '@/components/question-detail/VotingButton.tsx'
 import QuestionFooter from '@/components/question-detail/QuestionFooter.tsx'
 

@@ -1,10 +1,11 @@
-import { Question } from '@/libs/types'
 import { Chip } from '@heroui/chip'
 import { Avatar } from '@heroui/avatar'
 import { Link } from '@tanstack/react-router'
 import clsx from 'clsx'
 import { CheckIcon } from '@heroicons/react/24/outline'
+import type { Question } from '@/libs/types'
 import { stripHtmlTags, timeAgo } from '@/libs/util.ts'
+
 type Props = {
   question: Question
 }
@@ -15,17 +16,22 @@ export default function QuestionCard({ question }: Props) {
         <div>
           {question.votes} {question.votes === 1 ? 'vote' : 'votes'}
         </div>
-        <div className={clsx("flex justify-end rounded",{
-              "border-2 border-success" : question.answerCount > 0,
-              "bg-success-600 text-default-50" : question.hasAcceptedAnswer
-          })}>
-          <span className={clsx("flex items-center gap-2", {
-            "p-1": question.answerCount > 0,
-          })}>
+        <div
+          className={clsx('flex justify-end rounded', {
+            'border-2 border-success': question.answerCount > 0,
+            'bg-success-600 text-default-50': question.hasAcceptedAnswer,
+          })}
+        >
+          <span
+            className={clsx('flex items-center gap-2', {
+              'p-1': question.answerCount > 0,
+            })}
+          >
             {question.hasAcceptedAnswer && (
-              <CheckIcon className="h-4 w-4" strokeWidth={4}/>
+              <CheckIcon className="h-4 w-4" strokeWidth={4} />
             )}
-          {question.answerCount} {question.answerCount === 1 ? 'answer' : 'answers'}
+            {question.answerCount}{' '}
+            {question.answerCount === 1 ? 'answer' : 'answers'}
           </span>
         </div>
         <div>
@@ -41,7 +47,7 @@ export default function QuestionCard({ question }: Props) {
           >
             {question.title}
           </Link>
-          <div className="line-clamp-2" >{stripHtmlTags(question.content)}</div>
+          <div className="line-clamp-2">{stripHtmlTags(question.content)}</div>
           <div className="flex justify-between pt-2">
             <div className="flex gap-2">
               {question.tagSlugs.map((tag) => (

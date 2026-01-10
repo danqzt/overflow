@@ -1,14 +1,14 @@
-import { Tag } from '@/libs/types'
 import { create } from 'zustand/react'
+import type { Tag } from '@/libs/types'
 
 type TagStore = {
-  tags: Tag[],
-  setTags: (tags: Tag[]) => void,
-  getTagBySlug: (slug: string) => Tag | undefined,
+  tags: Array<Tag>
+  setTags: (tags: Array<Tag>) => void
+  getTagBySlug: (slug: string) => Tag | undefined
 }
 
-export const useTagStore = create<TagStore>((set,get) =>({
+export const useTagStore = create<TagStore>((set, get) => ({
   tags: [],
   setTags: (tags) => set({ tags }),
-  getTagBySlug: (slug) => get().tags.find(tag => tag.slug === slug)
- }))
+  getTagBySlug: (slug) => get().tags.find((tag) => tag.slug === slug),
+}))

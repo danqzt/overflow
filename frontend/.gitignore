@@ -2,7 +2,6 @@ node_modules
 .DS_Store
 dist
 dist-ssr
-*.local
 count.txt
 .env
 .nitro
@@ -11,3 +10,6 @@ count.txt
 .output
 .vinxi
 todos.json
+.env.*
+.env.local
+.env.production

@@ -1,9 +1,9 @@
 export type Response<T> = {
-  data?: T,
+  data?: T
   error?: ServerError
 }
 
 export type ServerError = {
-  message: string,
+  message: string
   status: number
 }

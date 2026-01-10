@@ -9,9 +9,9 @@ export const Route = createFileRoute('/tags/')({
 })
 
 function RouteComponent() {
-  const { data: tags } = useGetTags();
+  const { data: tags } = useGetTags()
 
-  const { data, error } = tags || {};
+  const { data, error } = tags || {}
 
   if (error) {
     handlerError(error)

@@ -10,5 +10,6 @@ function App() {
         <AcademicCapIcon className="w-96 h-96" />
         <div>Welcome to Overflow!</div>
       </div>
-    </div>)
+    </div>
+  )
 }

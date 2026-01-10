@@ -11,26 +11,28 @@ import { authClient } from '@/libs/authClient.ts'
 export const Route = createFileRoute('/questions/$id')({
   component: RouteComponent,
   loader: async ({ params }) => {
-    return await getQuestionById({ data: { id: params.id } });
+    return await getQuestionById({ data: { id: params.id } })
   },
 })
 
 function RouteComponent() {
-  const {data: question, error} = Route.useLoaderData()!;
-  const { data: session} = authClient.useSession();
+  const { data: question, error } = Route.useLoaderData()
+  const { data: session } = authClient.useSession()
 
-  if(error) handlerError(error);
-  if(!question) throw notFound();
+  if (error) handlerError(error)
+  if (!question) throw notFound()
 
-  return (<div className='w-full'>
-    <QuestionDetailHeader question={question}/>
-    <QuestionContent question={question}/>
-    {question.answers.length > 0 && (
-      <AnswerHeader answerCount={question.answers.length} />
-    )}
-    {question.answers.map(answer => (
-      <AnswerContent answer={answer} key={answer.id}/>
-    ))}
-    { session && <AnswerForm questionId={question.id}/> }
-  </div>)
+  return (
+    <div className="w-full">
+      <QuestionDetailHeader question={question} />
+      <QuestionContent question={question} />
+      {question.answers.length > 0 && (
+        <AnswerHeader answerCount={question.answers.length} />
+      )}
+      {question.answers.map((answer) => (
+        <AnswerContent answer={answer} key={answer.id} />
+      ))}
+      {session && <AnswerForm questionId={question.id} />}
+    </div>
+  )
 }

@@ -7,11 +7,11 @@ export interface Question {
   createdAt: string
   updatedAt?: string
   viewCount: number
-  tagSlugs: string[]
+  tagSlugs: Array<string>
   hasAcceptedAnswer: boolean
   votes: number
   answerCount: number
-  answers: Answer[]
+  answers: Array<Answer>
 }
 
 export interface Answer {
@@ -28,6 +28,6 @@ export interface Answer {
 export interface Tag {
   slug: string
   name: string
-  description: string,
+  description: string
   id: string
 }

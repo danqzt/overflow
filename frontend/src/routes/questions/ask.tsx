@@ -9,7 +9,7 @@ function RouteComponent() {
   return (
     <div className="px-6">
       <h3 className="font-semibold text-3xl pb-3"> Ask a public question</h3>
-        <QuestionForm />
+      <QuestionForm />
     </div>
   )
 }

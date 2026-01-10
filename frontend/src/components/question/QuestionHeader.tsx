@@ -14,7 +14,7 @@ const tabs = [
   { key: 'unanswered', label: 'Unanswered' },
 ]
 export default function QuestionHeader({ tag, total }: Props) {
-  const selectedTag = useTagStore(state => state.getTagBySlug(tag!))
+  const selectedTag = useTagStore((state) => state.getTagBySlug(tag!))
   return (
     <div className="flex flex-col w-full border-b gap-4 pb-4">
       <div className="flex justify-between px-6">

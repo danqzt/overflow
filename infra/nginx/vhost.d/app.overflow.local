@@ -1,0 +1,6 @@
+# Increase buffers for large upstream headers
+proxy_buffer_size 128k;
+proxy_buffers 8 128k;
+proxy_busy_buffers_size 256k;
+large_client_header_buffers 8 128k;
+client_header_buffer_size 128k;

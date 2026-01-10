@@ -1,5 +1,6 @@
-import { Controller, Control, FieldPath, FieldValues } from 'react-hook-form'
+import { Controller } from 'react-hook-form'
 import clsx from 'clsx'
+import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 import RichTextEditor from '@/components/rte/RichTextEditor.tsx'
 
 type RichTextFieldProps<T extends FieldValues> = {
@@ -34,7 +35,7 @@ export function RichTextField<T extends FieldValues>({
           />
           {fieldState.error?.message && (
             <span className="text-xs text-danger -mt-1">
-              {fieldState.error?.message}
+              {fieldState.error.message}
             </span>
           )}
         </>

@@ -1,15 +1,17 @@
-import { Editor,  useEditorState } from '@tiptap/react'
+import { useEditorState } from '@tiptap/react'
 import {
   BoldIcon,
   CodeBracketIcon,
   ItalicIcon,
-  LinkIcon, PhotoIcon,
+  LinkIcon,
+  PhotoIcon,
   StrikethroughIcon,
 } from '@heroicons/react/20/solid'
 import { Button } from '@heroui/button'
+import type { CloudinaryUploadWidgetResults } from '@cloudinary-util/types'
+import type { Editor} from '@tiptap/react';
 import { errorToast } from '@/libs/util.ts'
 import { CloudinaryWidget } from '@/components/rte/CloudinaryWidget.tsx'
-import { CloudinaryUploadWidgetResults } from '@cloudinary-util/types'
 
 type Props = {
   editor: Editor | null
@@ -32,11 +34,10 @@ export default function Toolbar({ editor }: Props) {
   if (!editor) return null
 
   const onUploadImage = (result: CloudinaryUploadWidgetResults) => {
-    if(result.info && typeof result.info === "object") {
-      editor?.chain().focus().setImage({src: result.info.secure_url}).run();
-    }
-    else {
-      errorToast({message: 'Image upload failed'});
+    if (result.info && typeof result.info === 'object') {
+      editor.chain().focus().setImage({ src: result.info.secure_url }).run()
+    } else {
+      errorToast({ message: 'Image upload failed' })
     }
   }
 
@@ -82,7 +83,15 @@ export default function Toolbar({ editor }: Props) {
           {option.icon}
         </Button>
       ))}
-      <Button isIconOnly radius="sm" size="sm" as={CloudinaryWidget} signatureEndpoint="/api/sign-image"  onUpload={onUploadImage} type="button">
+      <Button
+        isIconOnly
+        radius="sm"
+        size="sm"
+        as={CloudinaryWidget}
+        signatureEndpoint="/api/sign-image"
+        onUpload={onUploadImage}
+        type="button"
+      >
         <PhotoIcon className="w-5 h-5" />
       </Button>
     </div>

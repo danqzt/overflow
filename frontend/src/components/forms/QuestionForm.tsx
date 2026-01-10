@@ -1,21 +1,22 @@
-import { useTagStore } from '@/context/useTagStore.ts'
 import { Form } from '@heroui/form'
 import { Input } from '@heroui/input'
 import { Select } from '@heroui/select'
 import { SelectItem } from '@heroui/react'
 import { Button } from '@heroui/button'
 import { Controller, useForm } from 'react-hook-form'
-import {
-  EditQuestionSchema,
-  schema,
-  QuestionSchema,
-} from '@/libs/types/schema.ts'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
+import { useRouter } from '@tanstack/react-router'
+import type {
+  EditQuestionSchema,
+  QuestionSchema} from '@/libs/types/schema.ts';
+import type { Question } from '@/libs/types'
+import {
+  schema
+} from '@/libs/types/schema.ts'
 import { askQuestion, editQuestion } from '@/actions/questions.ts'
 import { handlerError } from '@/libs/util.ts'
-import { useRouter } from '@tanstack/react-router'
-import { Question } from '@/libs/types'
+import { useTagStore } from '@/context/useTagStore.ts'
 import { RichTextField } from '@/components/forms/RichTextField.tsx'
 
 type Props = {
@@ -24,7 +25,7 @@ type Props = {
 const defaultValue = {
   title: '',
   content: '',
-  tags: [] as string[],
+  tags: [] as Array<string>,
 }
 export function QuestionForm({ question }: Props) {
   const tags = useTagStore((state) => state.tags)
@@ -37,7 +38,7 @@ export function QuestionForm({ question }: Props) {
     resolver: zodResolver(schema),
     mode: 'all',
     defaultValues: question
-      ? { ...question, tags: question?.tagSlugs }
+      ? { ...question, tags: question.tagSlugs }
       : defaultValue,
   })
 
@@ -52,7 +53,10 @@ export function QuestionForm({ question }: Props) {
   const router = useRouter()
 
   const onSubmit = async (formData: QuestionSchema) => {
-    const { data: resp, error } = await mutateAsync({...formData, ...(question && {id: question.id}) })
+    const { data: resp, error } = await mutateAsync({
+      ...formData,
+      ...(question && { id: question.id }),
+    })
 
     if (error) {
       handlerError(error)
@@ -103,7 +107,7 @@ export function QuestionForm({ question }: Props) {
                 selectionMode="multiple"
                 disallowEmptySelection
                 items={tags}
-                selectedKeys={field.value ?? []}
+                selectedKeys={field.value}
                 onBlur={field.onBlur}
                 onSelectionChange={(keys) => field.onChange(Array.from(keys))}
                 isInvalid={fieldState.invalid}

@@ -4,8 +4,8 @@ import { stripHtmlTags } from '@/libs/util.ts'
 const required = (name: string) =>
   z.string().trim().min(1, `${name} is required`)
 
-const contentField = z.string()
-  .transform((value) => value ?? '')
+const contentField = z
+  .string()
   .refine((value) => value.trim().length > 0, {
     message: 'Content is required',
   })
@@ -24,19 +24,19 @@ export const schema = z.object({
 
 export const editQuestionSchema = schema.extend({
   id: z.string().uuid('Invalid question ID'),
-});
+})
 
 export const answerSchema = z.object({
   content: contentField,
-});
+})
 
 export const postAnswerSchema = answerSchema.extend({
   questionId: z.string().uuid('Invalid question ID'),
-});
+})
 
 export const editAnswerSchema = postAnswerSchema.extend({
   answerId: z.string().uuid('Invalid answer ID'),
-});
+})
 
 export type QuestionSchema = z.infer<typeof schema>
 export type EditQuestionSchema = z.infer<typeof editQuestionSchema>

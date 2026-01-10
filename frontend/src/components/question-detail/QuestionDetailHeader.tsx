@@ -1,6 +1,6 @@
-import { Question } from '@/libs/types'
 import { Button } from '@heroui/button'
 import { Link } from '@tanstack/react-router'
+import type { Question } from '@/libs/types'
 import { fuzzyTimeAgo } from '@/libs/util.ts'
 import { authClient } from '@/libs/authClient.ts'
 import DeleteQuestionButton from '@/components/question-detail/DeleteQuestionButton.tsx'
@@ -41,7 +41,7 @@ export default function QuestionDetailHeader({ question }: Props) {
           )}
           <Info label="Viewed" value={`${question.viewCount + 1} times`} />
         </div>
-        {data?.user?.userId === question.askerId && (
+        {data?.user.userId === question.askerId && (
           <div className="flex items-center gap-3">
             <Button
               as={Link}

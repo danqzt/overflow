@@ -17,9 +17,9 @@ export const getRouter = () => {
     },
 
     defaultPreload: 'intent',
-    defaultErrorComponent:({error, reset}) => (
-      <ErrorPage error={error} reset={reset}/>
-    )
+    defaultErrorComponent: ({ error, reset }) => (
+      <ErrorPage error={error} reset={reset} />
+    ),
   })
 
   setupRouterSsrQueryIntegration({ router, queryClient: rqContext.queryClient })

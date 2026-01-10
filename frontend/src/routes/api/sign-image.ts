@@ -15,8 +15,8 @@ export const Route = createFileRoute('/api/sign-image')({
           )
           return Response.json({ signature })
         } catch (error) {
-          console.log('SIGNINGERR: ', error);
-          new Response("Failed to upload", { status: 500 });
+          console.log('SIGNINGERR: ', error)
+          new Response('Failed to upload', { status: 500 })
         }
       },
       DELETE: async ({ request }) => {
@@ -25,8 +25,8 @@ export const Route = createFileRoute('/api/sign-image')({
           await cloudinary.v2.uploader.destroy(publicId)
           return new Response(null, { status: 204 })
         } catch (error) {
-          console.log('Delete fai: ', error);
-          return new Response("Failed to delete", { status: 500 })
+          console.log('Delete fai: ', error)
+          return new Response('Failed to delete', { status: 500 })
         }
       },
     },

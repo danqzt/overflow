@@ -4,7 +4,7 @@ using Projects;
 var builder = DistributedApplication.CreateBuilder(args);
 
 //aspire publish -o infra
-//aspire do prepare-compose --environment staging
+//aspire do prepare-compose --environment staging -o infra
 //in infra folder: docker-compose --env-file .env.staging up -d
 var compose = builder.AddDockerComposeEnvironment("compose")
     .WithDashboard(d => d.WithHostPort(8080));
@@ -80,12 +80,24 @@ var webapp = builder.AddViteApp(name:"webapp",  appDirectory:"../frontend")
     .WithReference(keycloak)
     .WithEndpoint("http", config => config.Port = 13000)
     .WithEnvironment("VIRTUAL_HOST", "app.overflow.local")
-    .WithEnvironment("VIRTUAL_PORT", "13000");
+    .WithEnvironment("VIRTUAL_PORT", "13000")
+    .WithEnvironment("API_URL","${API_URL}")
+    .WithEnvironment("BETTER_AUTH_SECRET","${BETTER_AUTH_SECRET}")
+    .WithEnvironment("CLOUDINARY_API_SECRET","${CLOUDINARY_API_SECRET}")
+    .WithEnvironment("AUTH_KEYCLOAK_CLIENT_SECRET","${AUTH_KEYCLOAK_CLIENT_SECRET}")
+    .WithEnvironment("AUTH_KEYCLOAK_ISSUER_INTERNAL","${AUTH_KEYCLOAK_ISSUER_INTERNAL}")
+    .PublishAsDockerFile();
 
 if (!builder.Environment.IsDevelopment())
 {
     builder.AddContainer("nginx-proxy", "nginxproxy/nginx-proxy", "1.9")
         .WithEndpoint(80, 80, "nginx", isExternal: true)
-        .WithBindMount("/var/run/docker.sock", "/tmp/docker.sock", true);
+        .WithEndpoint(443, 443, "nginx-ssl", isExternal: true)
+        .WithBindMount("/var/run/docker.sock", "/tmp/docker.sock", true)
+        .WithBindMount("../infra/devcert", "/etc/nginx/certs", true)
+        .WithBindMount("../infra/nginx/vhost.d", "/etc/nginx/vhost.d", true);
+    
+    keycloak.WithEnvironment("KC_HOSTNAME", "https://id.overflow.local")
+        .WithEnvironment("KC_HOSTNAME_BACKCHANNEL_DYNAMIC", "true");
 }
 builder.Build().Run();

@@ -1,6 +1,6 @@
 import { Button } from '@heroui/button'
-import { useTheme } from '@/context/ThemeProvider.tsx'
 import { MoonIcon, SunIcon } from '@heroicons/react/24/solid'
+import { useTheme } from '@/context/ThemeProvider.tsx'
 
 export default function ThemeToggle() {
   const { theme, setTheme } = useTheme()

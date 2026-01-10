@@ -3,10 +3,13 @@ import { genericOAuth, jwt } from 'better-auth/plugins'
 
 const clientId = import.meta.env.VITE_AUTH_KEYCLOAK_CLIENT_ID
 const clientSecret = process.env.AUTH_KEYCLOAK_CLIENT_SECRET
-const issuer = import.meta.env.VITE_AUTH_KEYCLOAK_ISSUER
 const baseUrl = import.meta.env.VITE_AUTH_URL;
+const issuerInternal = process.env.AUTH_KEYCLOAK_ISSUER_INTERNAL;
+const issuerExt = import.meta.env.VITE_AUTH_KEYCLOAK_ISSUER;
 
-if (!clientId || !clientSecret || !issuer || !baseUrl) {
+console.log('Client ID:', clientId, 'Issuer:', issuerInternal, 'Base URL:', baseUrl, 'Client Secret:', clientSecret);
+
+if (!clientId || !clientSecret || !issuerInternal || !baseUrl) {
   throw new Error('Missing required Keycloak environment variables')
 }
 
@@ -16,9 +19,11 @@ export const auth = betterAuth({
       config: [
         {
           providerId: 'keycloak',
-          discoveryUrl: `${issuer}/.well-known/openid-configuration`,
           clientId: clientId,
           clientSecret: clientSecret,
+          authorizationUrl:`${issuerExt}/protocol/openid-connect/auth`,
+          tokenUrl: `${issuerInternal}/protocol/openid-connect/token`,
+          userInfoUrl:`${issuerInternal}/protocol/openid-connect/userinfo`,
           scopes: ['openid', 'profile', 'email', 'offline_access'],
           authorizationUrlParams: {
             prompt: 'login',

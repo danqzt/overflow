@@ -1,9 +1,10 @@
-import {fetchClient} from "@/libs/server/fetchClient.ts";
 import { createServerFn } from '@tanstack/react-start'
+import { fetchClient } from '@/libs/server/fetchClient.ts'
 
 export const triggerError = createServerFn({ method: 'GET' })
   .inputValidator((data: { code: number }) => data)
-  .handler(async ({ data }) => fetchClient<{}>(`/tests/errors?code=${data.code}`),
+  .handler(async ({ data }) =>
+    fetchClient<{}>(`/tests/errors?code=${data.code}`),
   )
 
 export const triggerAuth = createServerFn({ method: 'GET' }).handler(async () =>

@@ -26,13 +26,11 @@ export default function TopNav() {
         <SearchInput />
         <div className="flex basis-1/4 shrink-0 justify-end gap-3">
           <ThemeToggle />
-          {session && (
-            <UserMenu user={session.user} />
-          )}
+          {session && <UserMenu user={session.user} />}
           {!isPending && !session && (
             <>
               <LoginButton />
-             <RegisterButton/>
+              <RegisterButton />
             </>
           )}
         </div>
