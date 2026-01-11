@@ -26,6 +26,7 @@ var postgres = builder.AddPostgres("postgres", port: 5432)
     .WithPgAdmin();
 
 var questionDb = postgres.AddDatabase("questionDb");
+var profileDb = postgres.AddDatabase("profileDb");
 
 //dotnet user-secrets set "Parameters:typesense-api-key" "<the secret key>"
 //dotnet user-secrets list 
@@ -63,6 +64,14 @@ var searchService = builder.AddProject<SearchService>("search-svc")
     .WaitForStart(rabbitmq)
     .WaitForStart(typesense);
 
+var profileService = builder.AddProject<QuestionService>("profile-svc")
+    .WithReference(keycloak)
+    .WithReference(profileDb)
+    .WithReference(rabbitmq)
+    .WaitForStart(keycloak)
+    .WaitForStart(rabbitmq)
+    .WaitForStart(profileDb);
+
 var yarp = builder.AddYarp("gateway")
     .WithConfiguration(c =>
     {
@@ -70,6 +79,7 @@ var yarp = builder.AddYarp("gateway")
         c.AddRoute("/tags/{**catch-all}", questionService);
         c.AddRoute("/search/{**catch-all}", searchService);
         c.AddRoute("/tests/{**catch-all}", questionService);
+        c.AddRoute("/profile/{**catch-all}", questionService);
     })
     .WithEndpoint(18001, 5000, scheme: "http", "gateway-port", isExternal: true)
     .WithEnvironment("VIRTUAL_HOST", "api.overflow.local")
