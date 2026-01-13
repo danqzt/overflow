@@ -1,4 +1,7 @@
-import { createFileRoute, notFound } from '@tanstack/react-router'
+import {
+  createFileRoute,
+  notFound,
+} from '@tanstack/react-router'
 import { getQuestionById } from '@/actions/questions.ts'
 import QuestionDetailHeader from '@/components/question-detail/QuestionDetailHeader.tsx'
 import QuestionContent from '@/components/question-detail/QuestionContent.tsx'
@@ -7,6 +10,7 @@ import AnswerHeader from '@/components/answer/AnswerHeader.tsx'
 import { handlerError } from '@/libs/util.ts'
 import AnswerForm from '@/components/forms/AnswerForm.tsx'
 import { authClient } from '@/libs/authClient.ts'
+import LoginToAnswer from '@/components/answer/LoginToAnswer.tsx'
 
 export const Route = createFileRoute('/questions/$id')({
   component: RouteComponent,
@@ -33,6 +37,7 @@ function RouteComponent() {
         <AnswerContent answer={answer} key={answer.id} />
       ))}
       {session && <AnswerForm questionId={question.id} />}
+      {!session && <LoginToAnswer />}
     </div>
   )
 }

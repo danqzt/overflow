@@ -1,5 +1,5 @@
-export type Response<T> = {
-  data?: T
+export type ApiResponse<T> = {
+  data: T
   error?: ServerError
 }
 

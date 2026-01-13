@@ -40,7 +40,6 @@ public class QuestionsController(QuestionDbContext db,
             Content = sanitizer.Sanitize(dto.Content),
             TagSlugs = dto.Tags,
             AskerId = userId,
-            AskerDisplayName = name,
         };
 
         db.Questions.Add(question);
@@ -170,7 +169,6 @@ public class QuestionsController(QuestionDbContext db,
             Content = sanitizer.Sanitize(dto.Content),
             QuestionId = questionId,
             UserId = User.FindFirstValue(ClaimTypes.NameIdentifier)!,
-            UserDisplayName = User.FindFirstValue("name")!
         };
         db.Answers.Add(answer);
         question.AnswerCount++;

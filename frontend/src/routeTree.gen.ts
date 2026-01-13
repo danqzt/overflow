@@ -16,6 +16,7 @@ import { Route as QuestionsIndexRouteImport } from './routes/questions/index'
 import { Route as ProfilesIndexRouteImport } from './routes/profiles/index'
 import { Route as QuestionsAskRouteImport } from './routes/questions/ask'
 import { Route as QuestionsIdRouteImport } from './routes/questions/$id'
+import { Route as ProfilesSigninRouteImport } from './routes/profiles/signin'
 import { Route as ProfilesIdRouteImport } from './routes/profiles/$id'
 import { Route as ApiSignImageRouteImport } from './routes/api/sign-image'
 import { Route as QuestionsEditIdRouteImport } from './routes/questions/edit.$id'
@@ -56,6 +57,11 @@ const QuestionsIdRoute = QuestionsIdRouteImport.update({
   path: '/questions/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProfilesSigninRoute = ProfilesSigninRouteImport.update({
+  id: '/profiles/signin',
+  path: '/profiles/signin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfilesIdRoute = ProfilesIdRouteImport.update({
   id: '/profiles/$id',
   path: '/profiles/$id',
@@ -81,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api/sign-image': typeof ApiSignImageRoute
   '/profiles/$id': typeof ProfilesIdRoute
+  '/profiles/signin': typeof ProfilesSigninRoute
   '/questions/$id': typeof QuestionsIdRoute
   '/questions/ask': typeof QuestionsAskRoute
   '/profiles': typeof ProfilesIndexRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/sign-image': typeof ApiSignImageRoute
   '/profiles/$id': typeof ProfilesIdRoute
+  '/profiles/signin': typeof ProfilesSigninRoute
   '/questions/$id': typeof QuestionsIdRoute
   '/questions/ask': typeof QuestionsAskRoute
   '/profiles': typeof ProfilesIndexRoute
@@ -108,6 +116,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/api/sign-image': typeof ApiSignImageRoute
   '/profiles/$id': typeof ProfilesIdRoute
+  '/profiles/signin': typeof ProfilesSigninRoute
   '/questions/$id': typeof QuestionsIdRoute
   '/questions/ask': typeof QuestionsAskRoute
   '/profiles/': typeof ProfilesIndexRoute
@@ -123,6 +132,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api/sign-image'
     | '/profiles/$id'
+    | '/profiles/signin'
     | '/questions/$id'
     | '/questions/ask'
     | '/profiles'
@@ -136,6 +146,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api/sign-image'
     | '/profiles/$id'
+    | '/profiles/signin'
     | '/questions/$id'
     | '/questions/ask'
     | '/profiles'
@@ -149,6 +160,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api/sign-image'
     | '/profiles/$id'
+    | '/profiles/signin'
     | '/questions/$id'
     | '/questions/ask'
     | '/profiles/'
@@ -163,6 +175,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiSignImageRoute: typeof ApiSignImageRoute
   ProfilesIdRoute: typeof ProfilesIdRoute
+  ProfilesSigninRoute: typeof ProfilesSigninRoute
   QuestionsIdRoute: typeof QuestionsIdRoute
   QuestionsAskRoute: typeof QuestionsAskRoute
   ProfilesIndexRoute: typeof ProfilesIndexRoute
@@ -224,6 +237,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof QuestionsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/profiles/signin': {
+      id: '/profiles/signin'
+      path: '/profiles/signin'
+      fullPath: '/profiles/signin'
+      preLoaderRoute: typeof ProfilesSigninRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profiles/$id': {
       id: '/profiles/$id'
       path: '/profiles/$id'
@@ -259,6 +279,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiSignImageRoute: ApiSignImageRoute,
   ProfilesIdRoute: ProfilesIdRoute,
+  ProfilesSigninRoute: ProfilesSigninRoute,
   QuestionsIdRoute: QuestionsIdRoute,
   QuestionsAskRoute: QuestionsAskRoute,
   ProfilesIndexRoute: ProfilesIndexRoute,

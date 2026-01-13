@@ -33,7 +33,7 @@ builder.Services.AddTypesenseClient(c =>
 
 await builder.UseWolverineWithRabbitMqAsync(opts =>
 {
-    opts.ListenToRabbitQueue("questions.search", x => x.BindExchange("questions"));
+    //opts.ListenToRabbitQueue("questions.search", x => x.BindExchange("questions"));
     opts.ApplicationAssembly = typeof(Program).Assembly;
 });
 

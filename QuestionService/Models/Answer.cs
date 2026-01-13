@@ -14,8 +14,6 @@ public class Answer
     [MaxLength(50)]
     public required string UserId { get; set; }
     
-    [MaxLength(1000)]
-    public required string UserDisplayName { get; set; }
     
     [MaxLength(36)]
     public required string QuestionId { get; set; }

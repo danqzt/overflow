@@ -71,11 +71,11 @@ export default function AnswerFooter({ answer }: Props) {
             <Avatar
               className="h-6 w-6"
               color="secondary"
-              name={answer.userDisplayName.charAt(0)}
+              name={answer.author.displayName.charAt(0)}
             />
             <div className="flex items-center flex-col">
-              <span>{answer.userDisplayName}</span>
-              <span className="self-start text-sm font-semibold">42</span>
+              <span>{answer.author.displayName}</span>
+              <span className="self-start text-sm font-semibold">{answer.author.reputation}</span>
             </div>
           </div>
         </div>

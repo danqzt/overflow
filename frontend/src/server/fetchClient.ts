@@ -1,17 +1,17 @@
 import { getRequestHeaders } from '@tanstack/react-start/server'
-import type { Response } from '@/libs/types/Response.ts'
-import { getAccessToken } from '@/libs/server/auth.ts'
+import type { ApiResponse } from '@/libs/types/ApiResponse.ts'
+import { getAccessToken } from '@/server/auth.ts'
 
 export async function fetchClient<T>(
   url: string,
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'GET',
   options: Omit<RequestInit, 'body'> & { body?: unknown } = {},
-): Promise<Response<T>> {
+): Promise<ApiResponse<T>> {
   const { body, ...rest } = options
   const apiUrl = process.env.API_URL
   if (!apiUrl) throw new Error('Missing API URL')
+
   const token = await getAccessToken(getRequestHeaders())
-  console.log(token)
 
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
@@ -44,6 +44,7 @@ export async function fetchClient<T>(
       }
     }
     return {
+      data: {} as T,
       error: {
         message: errorData || 'An error occurred',
         status: response.status,

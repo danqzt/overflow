@@ -25,8 +25,12 @@ export const Route = createFileRoute('/questions/')({
 })
 
 function QuestionPage() {
-  const questions = Route.useLoaderData()!
-  const params = Route.useSearch()
+  const {data: questions, error } = Route.useLoaderData()!
+  const params = Route.useSearch();
+
+  if(error) {
+    throw error;
+  }
   return (
     <>
       <QuestionHeader tag={params.tag} total={questions.length} />

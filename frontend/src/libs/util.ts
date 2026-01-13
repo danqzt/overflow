@@ -8,7 +8,7 @@ import {
   isToday,
   isYesterday,
 } from 'date-fns'
-import type { ServerError } from '@/libs/types/Response.ts'
+import type { ServerError } from '@/libs/types/ApiResponse.ts'
 
 export function errorToast(error: { message: string; status?: number }) {
   return addToast({

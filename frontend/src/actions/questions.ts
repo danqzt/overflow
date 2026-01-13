@@ -1,31 +1,19 @@
 import { createServerFn } from '@tanstack/react-start'
 import type { Answer, Question } from '@/libs/types'
-import { fetchClient } from '@/libs/server/fetchClient.ts'
+import { fetchClient } from '@/server/fetchClient.ts'
 import {
   editAnswerSchema,
   editQuestionSchema,
   postAnswerSchema,
   schema,
 } from '@/libs/types/schema.ts'
+import {
+  fetchQuestionById,
+  fetchQuestions,
+  queryQuestions,
+} from '@/server/services/questionSvc.ts'
 
-async function fetchQuestions(tag?: string) {
-  let url = '/questions'
-  if (tag) url += `?tag=${encodeURIComponent(tag)}`
-  const { data } = await fetchClient<Array<Question>>(url)
-  return data
-}
 
-async function fetchQuestionById(id: string) {
-  return await fetchClient<Question>(`/questions/${id}`)
-}
-
-async function queryQuestions(query: string) {
-  const { data, error } = await fetchClient<Array<Question>>(
-    `/search?query=${encodeURIComponent(query)}`,
-  )
-  if (error) throw error
-  return data
-}
 
 export const getQuestions = createServerFn({ method: 'GET' }).handler(
   async () => fetchQuestions(),

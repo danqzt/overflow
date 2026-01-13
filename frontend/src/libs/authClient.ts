@@ -10,6 +10,8 @@ export const authClient = createAuthClient({
     inferAdditionalFields({
       user: {
         userId: { type: 'string', required: false },
+        displayName: { type: 'string', required: false },
+        reputation: { type: 'number', required: false },
       },
     }),
   ],

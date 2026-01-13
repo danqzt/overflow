@@ -3,7 +3,6 @@ export interface Question {
   title: string
   content: string
   askerId: string
-  askerDisplayName: string
   createdAt: string
   updatedAt?: string
   viewCount: number
@@ -12,17 +11,18 @@ export interface Question {
   votes: number
   answerCount: number
   answers: Array<Answer>
+  author: UserProfile
 }
 
 export interface Answer {
   id: string
   content: string
   userId: string
-  userDisplayName: string
   questionId: string
   createdAt: string
   updatedAt?: string
-  accepted: boolean
+  accepted: boolean,
+  author: UserProfile
 }
 
 export interface Tag {
@@ -30,4 +30,10 @@ export interface Tag {
   name: string
   description: string
   id: string
+}
+
+export interface UserProfile {
+  userId: string
+  displayName: string
+  reputation: number
 }

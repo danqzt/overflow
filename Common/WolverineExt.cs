@@ -17,24 +17,30 @@ public static class WolverineExt
     public static async Task UseWolverineWithRabbitMqAsync(this IHostApplicationBuilder builder, 
         Action<WolverineOptions> configureMsg)
     {
-        var retryPolicy = Policy.Handle<BrokerUnreachableException>().Or<SocketException>()
-            .WaitAndRetryAsync(retryCount: 5, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
-                (exception, timeSpan, retryCount) =>
-                {
-                    Console.WriteLine($"Retry attempt {retryCount}. Retrying in {timeSpan.Seconds} seconds REASON: {exception.Message}");
-                });
+        var isEfDesignTime = AppDomain.CurrentDomain.FriendlyName.StartsWith("ef", StringComparison.OrdinalIgnoreCase);
 
-        //make sure RabbitMQ is available before starting the app
-        await retryPolicy.ExecuteAsync(async () =>
+        if (!isEfDesignTime)
         {
-            var endpoint = builder.Configuration.GetConnectionString("messaging")
-                           ?? throw new InvalidOperationException("Missing messaging connection string");
-            var factory = new ConnectionFactory
+            var retryPolicy = Policy.Handle<BrokerUnreachableException>().Or<SocketException>()
+                .WaitAndRetryAsync(retryCount: 5, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                    (exception, timeSpan, retryCount) =>
+                    {
+                        Console.WriteLine($"Retry attempt {retryCount}. Retrying in {timeSpan.Seconds} seconds REASON: {exception.Message}");
+                    });
+
+            //make sure RabbitMQ is available before starting the app
+            await retryPolicy.ExecuteAsync(async () =>
             {
-                Uri = new Uri(endpoint)
-            };
-            await using var connection = await factory.CreateConnectionAsync();
-        });
+                var endpoint = builder.Configuration.GetConnectionString("messaging")
+                               ?? throw new InvalidOperationException("Missing messaging connection string");
+                var factory = new ConnectionFactory
+                {
+                    Uri = new Uri(endpoint)
+                };
+                await using var connection = await factory.CreateConnectionAsync();
+            });   
+        }
+
         
         builder.Services.AddOpenTelemetry().WithTracing(tracerProvider =>
         {
@@ -47,7 +53,7 @@ public static class WolverineExt
         {
             opts.UseRabbitMqUsingNamedConnection("messaging")
                 .AutoProvision()
-                .DeclareExchange("questions");
+                .UseConventionalRouting();
             configureMsg(opts);
         });
     }

@@ -41,7 +41,7 @@ builder.AddNpgsqlDbContext<QuestionDbContext>("questionDb");
 
 await builder.UseWolverineWithRabbitMqAsync(opt =>
 {
-    opt.PublishAllMessages().ToRabbitExchange("questions");
+    //opt.PublishAllMessages().ToRabbitExchange("questions");
     opt.ApplicationAssembly = typeof(Program).Assembly;
 });
 var app = builder.Build();

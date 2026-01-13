@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { cloudinary } from '@/libs/server/cloudinary.ts'
+import { cloudinary } from '@/server/cloudinary.ts'
 
 export const Route = createFileRoute('/api/sign-image')({
   server: {
