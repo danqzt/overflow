@@ -4,6 +4,8 @@ import {
   inferAdditionalFields,
 } from 'better-auth/client/plugins'
 
+export type AuthUser = typeof authClient.$Infer.Session.user
+
 export const authClient = createAuthClient({
   plugins: [
     genericOAuthClient(),

@@ -21,20 +21,21 @@ export const Route = createFileRoute('/questions/$id')({
 
 function RouteComponent() {
   const { data: question, error } = Route.useLoaderData()
-  const { data: session } = authClient.useSession()
+  const { data: session, isPending } = authClient.useSession()
 
   if (error) handlerError(error)
   if (!question) throw notFound()
+  if (isPending) return <div>Loading...</div>
 
   return (
     <div className="w-full">
       <QuestionDetailHeader question={question} />
-      <QuestionContent question={question} />
+      <QuestionContent question={question} user={session?.user} />
       {question.answers.length > 0 && (
         <AnswerHeader answerCount={question.answers.length} />
       )}
       {question.answers.map((answer) => (
-        <AnswerContent answer={answer} key={answer.id} />
+        <AnswerContent answer={answer} key={answer.id} askerId={question.askerId} user={session?.user} />
       ))}
       {session && <AnswerForm questionId={question.id} />}
       {!session && <LoginToAnswer />}

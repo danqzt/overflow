@@ -22,6 +22,8 @@ public class Answer
     public DateTime? UpdatedAt { get; set; }
     public bool Accepted { get; set; }
     
+    public int Votes { get; set; }
+    
     [JsonIgnore]
     public Question Question { get; set; } = null!;
 }

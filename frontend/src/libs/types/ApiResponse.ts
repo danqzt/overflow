@@ -1,6 +1,7 @@
 export type ApiResponse<T> = {
   data: T
-  error?: ServerError
+  error?: ServerError,
+  authToken?: string
 }
 
 export type ServerError = {

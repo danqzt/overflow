@@ -1,9 +1,11 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace ProfileService.Model;
 
 public class UserProfile
 {
+    [JsonPropertyName("userId")]
     [MaxLength(36)]
     public string Id { get; set; } = Guid.NewGuid().ToString();
     

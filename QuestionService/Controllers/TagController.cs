@@ -9,8 +9,10 @@ namespace QuestionService.Controllers;
 [Route("[controller]")]
 public class TagsController(QuestionDbContext db) : ControllerBase
 {
-    public async Task<ActionResult<IReadOnlyList<Tag>>> GetTags()
+    public async Task<ActionResult<IReadOnlyList<Tag>>> GetTags(string? sort)
     {
-       return await db.Tags.OrderBy(tag => tag.Name).ToListAsync();
+        var query = db.Tags.OrderBy(tag => tag.Name);
+        query = sort == "popular" ? query.OrderByDescending(x => x.UsageCount).ThenBy(x=> x.Name) : query.OrderBy(x => x.Name);
+        return await query.ToListAsync();
     }
 }

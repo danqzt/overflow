@@ -88,3 +88,13 @@ export const deleteAnswer = createServerFn({ method: 'POST' })
       'DELETE',
     )
   })
+
+export const acceptAnswer = createServerFn({ method: 'POST' })
+  .inputValidator((data: { questionId: string; answerId: string }) => data)
+  .handler(async ({ data }) => {
+    const { questionId, answerId } = data
+    return await fetchClient<{}>(
+      `/questions/${questionId}/answers/${answerId}/accept`,
+      'POST',
+    )
+  })

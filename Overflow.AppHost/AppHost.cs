@@ -28,6 +28,8 @@ var postgres = builder.AddPostgres("postgres", port: 5432)
 
 var questionDb = postgres.AddDatabase("questionDb");
 var profileDb = postgres.AddDatabase("profileDb");
+var statDb = postgres.AddDatabase("statDb");
+var voteDb = postgres.AddDatabase("votDb");
 
 //dotnet user-secrets set "Parameters:typesense-api-key" "<the secret key>"
 //dotnet user-secrets list 
@@ -68,10 +70,24 @@ var searchService = builder.AddProject<SearchService>("search-svc")
 var profileService = builder.AddProject<ProfileService>("profile-svc")
     .WithReference(keycloak)
     .WithReference(profileDb)
-    .WithReference(rabbitmq)
+    .WithReference(rabbitmq)    
     .WaitForStart(keycloak)
     .WaitForStart(rabbitmq)
     .WaitForStart(profileDb);
+
+var statService = builder.AddProject<StatService>("stat-svc")
+    .WithReference(statDb)
+    .WithReference(rabbitmq)
+    .WaitForStart(rabbitmq)
+    .WaitForStart(statDb);
+
+var voteService = builder.AddProject<VoteService>("vote-svc")
+    .WithReference(keycloak)
+    .WithReference(voteDb)
+    .WithReference(rabbitmq)    
+    .WaitForStart(keycloak)
+    .WaitForStart(rabbitmq)
+    .WaitForStart(voteDb);
 
 var yarp = builder.AddYarp("gateway")
     .WithConfiguration(c =>
@@ -81,6 +97,8 @@ var yarp = builder.AddYarp("gateway")
         c.AddRoute("/search/{**catch-all}", searchService);
         c.AddRoute("/tests/{**catch-all}", questionService);
         c.AddRoute("/profiles/{**catch-all}", profileService);
+        c.AddRoute("/stats/{**catch-all}", statService);
+        c.AddRoute("/votes/{**catch-all}", voteService);
     })
     .WithEndpoint(18001, 5000, scheme: "http", "gateway-port", isExternal: true)
     .WithEnvironment("VIRTUAL_HOST", "api.overflow.local")

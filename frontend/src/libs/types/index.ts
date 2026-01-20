@@ -11,7 +11,8 @@ export interface Question {
   votes: number
   answerCount: number
   answers: Array<Answer>
-  author: UserProfile
+  author: UserProfile,
+  userVoted: number
 }
 
 export interface Answer {
@@ -22,7 +23,9 @@ export interface Answer {
   createdAt: string
   updatedAt?: string
   accepted: boolean,
-  author: UserProfile
+  author: UserProfile,
+  votes: number,
+  userVoted: number
 }
 
 export interface Tag {
@@ -30,6 +33,7 @@ export interface Tag {
   name: string
   description: string
   id: string
+  usageCount: number
 }
 
 export interface UserProfile {
@@ -37,3 +41,15 @@ export interface UserProfile {
   displayName: string
   reputation: number
 }
+
+export interface TrendingTag {
+  tag: string,
+  count: number
+}
+
+export interface VoteRecord  {
+  targetId: string,
+  targetType: 'Question' | 'Answer',
+  voteValue: number
+}
+

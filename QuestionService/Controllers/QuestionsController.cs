@@ -14,17 +14,20 @@ namespace QuestionService.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class QuestionsController(QuestionDbContext db, 
-    IMessageBus bus, ITagService tagService, HtmlSanitizer sanitizer) : ControllerBase
+public class QuestionsController(
+    QuestionDbContext db,
+    IMessageBus bus,
+    ITagService tagService,
+    HtmlSanitizer sanitizer) : ControllerBase
 {
-    
     #region Questions CRUD
+
     [Authorize]
     [HttpPost]
     public async Task<ActionResult<Question>> CreateQuestion(CreateQuestionDto dto)
     {
         //validate tags is in Db
-        if(await tagService.InValidTags(dto.Tags))
+        if (await tagService.InValidTags(dto.Tags))
         {
             return BadRequest("One or more tags are invalid.");
         }
@@ -44,7 +47,16 @@ public class QuestionsController(QuestionDbContext db,
 
         db.Questions.Add(question);
         await db.SaveChangesAsync();
-        
+
+        var slugs = question.TagSlugs.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        if (slugs.Count > 0)
+        {
+            await db.Tags
+                .Where(t => slugs.Contains(t.Slug))
+                .ExecuteUpdateAsync(x => x.SetProperty(t => t.UsageCount, t => t.UsageCount + 1));
+        }
+
+
         await bus.PublishAsync(new QuestionCreated(
             question.Id,
             question.Title,
@@ -73,10 +85,9 @@ public class QuestionsController(QuestionDbContext db,
     [HttpGet("{id}")]
     public async Task<ActionResult<Question>> GetQuestionById(string id)
     {
-        var question = await db.Questions.
-             Include(a => a.Answers)
+        var question = await db.Questions.Include(a => a.Answers)
             .Where(q => q.Id == id).FirstOrDefaultAsync();
-        
+
         if (question == null)
         {
             return NotFound();
@@ -106,18 +117,39 @@ public class QuestionsController(QuestionDbContext db,
         }
 
         //validate tags is in Db
-        if(await tagService.InValidTags(dto.Tags))
+        if (await tagService.InValidTags(dto.Tags))
         {
             return BadRequest("One or more tags are invalid.");
         }
-        
+
+        var original = question.TagSlugs.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        var incoming = dto.Tags.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+
+        var removed = original.Except(incoming, StringComparer.OrdinalIgnoreCase).ToList();
+        var added = incoming.Except(original, StringComparer.OrdinalIgnoreCase).ToList();
+
         question.Title = dto.Title;
         question.Content = sanitizer.Sanitize(dto.Content);
         question.TagSlugs = dto.Tags;
         question.UpdatedAt = DateTime.UtcNow;
 
         await db.SaveChangesAsync();
-        
+
+        if (removed.Count > 0)
+        {
+            await db.Tags
+                .Where(t => removed.Contains(t.Slug) && t.UsageCount > 0)
+                .ExecuteUpdateAsync(x => x.SetProperty(t => t.UsageCount, t => t.UsageCount - 1));
+        }
+
+        if (added.Count > 0)
+        {
+            await db.Tags
+                .Where(t => added.Contains(t.Slug))
+                .ExecuteUpdateAsync(x => x.SetProperty(t => t.UsageCount, t => t.UsageCount + 1));
+        }
+
+
         await bus.PublishAsync(new QuestionUpdated(
             question.Id,
             question.Title,
@@ -126,8 +158,8 @@ public class QuestionsController(QuestionDbContext db,
         ));
         return NoContent();
     }
-    
-    
+
+
     [Authorize]
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteQuestion(string id)
@@ -146,15 +178,15 @@ public class QuestionsController(QuestionDbContext db,
 
         db.Questions.Remove(question);
         await db.SaveChangesAsync();
-        
-        await bus.PublishAsync(new QuestionDeleted( question.Id));
+
+        await bus.PublishAsync(new QuestionDeleted(question.Id));
         return NoContent();
     }
-    
+
     #endregion
-    
+
     #region Answers CRUD
-    
+
     [Authorize]
     [HttpPost("{questionId}/answers")]
     public async Task<ActionResult<Answer>> CreateAnswer(string questionId, CreateAnswerDto dto)
@@ -163,7 +195,7 @@ public class QuestionsController(QuestionDbContext db,
         var question = await db.Questions.FindAsync(questionId);
         if (question is null)
             return NotFound();
-        
+
         var answer = new Answer
         {
             Content = sanitizer.Sanitize(dto.Content),
@@ -172,12 +204,12 @@ public class QuestionsController(QuestionDbContext db,
         };
         db.Answers.Add(answer);
         question.AnswerCount++;
-        
+
         await db.SaveChangesAsync();
         await bus.PublishAsync(new UpdateAnswerCount(questionId, answer.Question.AnswerCount));
         return Created($"/questions/{questionId}/answers/{answer.Id}", answer);
     }
-    
+
     [Authorize]
     [HttpPut("{questionId}/answers/{answerId}")]
     public async Task<IActionResult> UpdateQuestion(string questionId, string answerId, CreateAnswerDto dto)
@@ -200,7 +232,7 @@ public class QuestionsController(QuestionDbContext db,
         await db.SaveChangesAsync();
         return NoContent();
     }
-    
+
     [Authorize]
     [HttpDelete("{questionId}/answers/{answerId}")]
     public async Task<IActionResult> DeleteAnswer(string questionId, string answerId)
@@ -208,7 +240,7 @@ public class QuestionsController(QuestionDbContext db,
         var answer = await db.Answers
             .Include(a => a.Question)
             .FirstOrDefaultAsync(a => a.Id == answerId);
-        
+
         if (answer == null || answer.QuestionId != questionId)
         {
             return NotFound();
@@ -224,15 +256,15 @@ public class QuestionsController(QuestionDbContext db,
         {
             return Forbid();
         }
-  
+
         db.Answers.Remove(answer);
-        answer.Question.AnswerCount--;      
-        
+        answer.Question.AnswerCount--;
+
         await db.SaveChangesAsync();
         await bus.PublishAsync(new UpdateAnswerCount(questionId, answer.Question.AnswerCount));
         return NoContent();
     }
-    
+
     [Authorize]
     [HttpPost("{questionId}/answers/{answerId}/accept")]
     public async Task<IActionResult> AcceptAnswer(string questionId, string answerId)
@@ -240,7 +272,7 @@ public class QuestionsController(QuestionDbContext db,
         var answer = await db.Answers
             .Include(a => a.Question)
             .FirstOrDefaultAsync(a => a.Id == answerId);
-        
+
         if (answer == null || answer.QuestionId != questionId)
         {
             return NotFound();
@@ -250,14 +282,16 @@ public class QuestionsController(QuestionDbContext db,
         {
             return BadRequest("Question already has an accepted answer.");
         }
-        
+
         answer.Accepted = true;
         answer.Question.HasAcceptedAnswer = true;
-        
+
         await db.SaveChangesAsync();
         await bus.PublishAsync(new AnswerAccepted(questionId));
+        await bus.PublishAsync(ReputationHelper.MakeEvent(answer.UserId, ReputationReason.AnswerAccepted,
+            answer.Question.AskerId));
         return NoContent();
     }
+
     #endregion
-    
 }

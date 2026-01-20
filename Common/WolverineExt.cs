@@ -53,7 +53,10 @@ public static class WolverineExt
         {
             opts.UseRabbitMqUsingNamedConnection("messaging")
                 .AutoProvision()
-                .UseConventionalRouting();
+                .UseConventionalRouting(x =>
+                {
+                    x.QueueNameForListener(t => $"{t.FullName}.{builder.Environment.ApplicationName}");
+                });
             configureMsg(opts);
         });
     }

@@ -1,0 +1,16 @@
+namespace Contracts;
+
+public class ReputationHelper
+{
+    private static int GetDelta(ReputationReason reason) => reason switch
+    {
+        ReputationReason.QuestionsUpvoted => 5,
+        ReputationReason.QuestionDownvoted => -2,
+        ReputationReason.AnswerUpvoted => 5,
+        ReputationReason.AnswerDownvoted => -2,
+        _ => 15,
+    };
+    
+    public static UserReputationChanged MakeEvent(string userId, ReputationReason reason, string actorUserId) 
+        => new(userId, GetDelta(reason), reason, actorUserId, DateTime.UtcNow);
+}

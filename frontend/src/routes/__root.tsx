@@ -17,6 +17,7 @@ import { AppProvider } from '@/context/AppProvider.tsx'
 import { getThemeServerFn } from '@/actions/theme.ts'
 import ThemeProvider from '@/context/ThemeProvider.tsx'
 import NotFound from '@/components/error/NotFound.tsx'
+import TrendingTags from '@/components/TrendingTags.tsx'
 
 interface MyRouterContext {
   queryClient: QueryClient
@@ -66,7 +67,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               </aside>
               <main className="flex-1 pt-20 h-full">{children}</main>
               <aside className="basis-1/4 shrink-0 px-6 pt-20 bg-stone-300 dark:bg-default-100 sticky top-0">
-                Right content
+               <TrendingTags/>
               </aside>
             </div>
           </AppProvider>

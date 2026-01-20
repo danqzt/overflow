@@ -44,6 +44,10 @@ export async function queryQuestions(query: string) {
   return data
 }
 
-export function fetchTags() {
-  return fetchClient<Array<Tag>>('/tags')
+export function fetchTags(sort?: string) {
+  let url = '/tags';
+  if(sort){
+    url += `?sort=${encodeURIComponent(sort)}`;
+  }
+  return fetchClient<Array<Tag>>(url);
 }

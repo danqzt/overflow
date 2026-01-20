@@ -38,6 +38,7 @@ export const auth = betterAuth({
           authorizationUrlParams: {
             prompt: 'login',
           },
+          prompt: 'login',
           getUserInfo: async (tokens) => {
             try {
               const userinfoResp = await fetch(
