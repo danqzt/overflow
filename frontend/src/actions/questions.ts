@@ -1,5 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
-import type { Answer, Question } from '@/libs/types'
+import type { Answer, Question, Vote } from '@/libs/types'
 import { fetchClient } from '@/server/fetchClient.ts'
 import {
   editAnswerSchema,
@@ -96,5 +96,17 @@ export const acceptAnswer = createServerFn({ method: 'POST' })
     return await fetchClient<{}>(
       `/questions/${questionId}/answers/${answerId}/accept`,
       'POST',
+    )
+  })
+
+export const vote = createServerFn({ method: 'POST' })
+  .inputValidator((data : Vote ) => data)
+  .handler(async ({ data }) => {
+    return await fetchClient<Answer>(
+      `/votes`,
+      'POST',
+      {
+        body: { ...data },
+      },
     )
   })

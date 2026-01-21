@@ -1,5 +1,6 @@
 import { LRUCache } from 'lru-cache'
-import { UserProfile } from '@/libs/types'
+import { TopUserWithProfile, UserProfile } from '@/libs/types'
+import { ApiResponse } from '@/libs/types/ApiResponse.ts'
 
 function serverCache<T extends {}>() {
   return new LRUCache<string, T>({
@@ -8,4 +9,5 @@ function serverCache<T extends {}>() {
   })
 }
 
-export const profileCache = serverCache<Map<string, UserProfile>>()
+export const profileCache = serverCache<Map<string, UserProfile>>();
+export const topUsersCache = serverCache<ApiResponse<TopUserWithProfile[]>>();

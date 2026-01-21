@@ -6,22 +6,21 @@ export async function fetchClient<T>(
   url: string,
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'GET',
   options: Omit<RequestInit, 'body'> & { body?: unknown } = {},
-  authToken: string | undefined = undefined,
+  authToken: string | undefined | 'anon' = undefined,
 ): Promise<ApiResponse<T>> {
   const { body, ...rest } = options
   const apiUrl = process.env.API_URL
   if (!apiUrl) throw new Error('Missing API URL')
 
-  if(!authToken) {
-    const token = await getAccessToken(getRequestHeaders());
-    authToken = token?.accessToken || undefined;
-  }
+  const token = authToken === 'anon'
+    ? undefined
+    : authToken || (await getAccessToken(getRequestHeaders()))?.accessToken
 
 
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
     ...(authToken
-      ? { Authorization: `Bearer ${authToken}` }
+      ? { Authorization: `Bearer ${token}` }
       : {}),
     ...(rest.headers || {}),
   }
@@ -54,7 +53,7 @@ export async function fetchClient<T>(
         message: errorData || 'An error occurred',
         status: response.status,
       },
-      authToken,
+      authToken: token,
 
     }
   }

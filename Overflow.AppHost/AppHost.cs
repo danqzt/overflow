@@ -29,7 +29,7 @@ var postgres = builder.AddPostgres("postgres", port: 5432)
 var questionDb = postgres.AddDatabase("questionDb");
 var profileDb = postgres.AddDatabase("profileDb");
 var statDb = postgres.AddDatabase("statDb");
-var voteDb = postgres.AddDatabase("votDb");
+var voteDb = postgres.AddDatabase("voteDb");
 
 //dotnet user-secrets set "Parameters:typesense-api-key" "<the secret key>"
 //dotnet user-secrets list 

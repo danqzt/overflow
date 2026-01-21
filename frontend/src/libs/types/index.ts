@@ -53,3 +53,18 @@ export interface VoteRecord  {
   voteValue: number
 }
 
+export interface Vote {
+  targetId: string,
+  targetType: 'Question' | 'Answer',
+  targetUserId: string,
+  questionId: string,
+  voteValue: 1 | -1
+}
+
+export interface TopUser {
+  userId: string,
+  delta: number,
+}
+
+export type TopUserWithProfile = TopUser & { profile: UserProfile } ;
+

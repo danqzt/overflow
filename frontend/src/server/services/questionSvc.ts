@@ -1,5 +1,5 @@
 import { ApiResponse } from '@/libs/types/ApiResponse.ts'
-import type { Question, Tag } from '@/libs/types'
+import type { Question, Tag, VoteRecord } from '@/libs/types'
 import { fetchClient } from '@/server/fetchClient.ts'
 import { fetchProfiles } from '@/server/services/profileSvc.ts'
 
@@ -21,7 +21,7 @@ export async function fetchQuestions(tag?: string): Promise<ApiResponse<Question
 }
 
 export async function fetchQuestionById(id: string) : Promise<ApiResponse<Question>> {
-  const {data ,error } = await fetchClient<Question>(`/questions/${id}`)
+  const { data ,error, authToken } = await fetchClient<Question>(`/questions/${id}`)
   if(error) return { data: {} as Question, error };
   if(!data?.askerId) return { data: {} as Question };
 
@@ -29,10 +29,29 @@ export async function fetchQuestionById(id: string) : Promise<ApiResponse<Questi
   ids.add(data.askerId)
   data.answers.forEach(a => { ids.add(a.userId) });
   const profiles = await fetchProfiles(Array.from(ids));
-  const enrichedData = { ...data,
+
+  let voteMap = new Map<string, number>();
+  if(authToken) {
+    const voteUrl = `/votes/${id}`;
+    const { data: votes, error: voteError } = await fetchClient<VoteRecord[]>(voteUrl, undefined, undefined, authToken);
+    if(!voteError) {
+      voteMap = new Map( votes.map(v => [v.targetId, v.voteValue]) );
+    }
+  }
+
+  const getUserVote = (targetId: string) => voteMap.get(targetId) ?? 0;
+
+  const enrichedData : Question = {
+    ...data,
+    userVoted: getUserVote(data.id),
     author : profiles.get(data.askerId)!,
-    answers: data.answers.map(answer => ({...answer, author: profiles.get(answer.userId)! }))
+    answers: data.answers.map(answer => (
+      {...answer,
+        author: profiles.get(answer.userId)!,
+        userVoted: getUserVote(answer.id)
+      }))
   };
+
   return { data: enrichedData }
 }
 
