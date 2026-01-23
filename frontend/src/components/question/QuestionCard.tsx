@@ -43,7 +43,7 @@ export default function QuestionCard({ question }: Props) {
           <Link
             to="/questions/$id"
             params={{ id: question.id }}
-            className="text-primary hover:underline font-semibold first-letter:uppercase"
+            className="text-primary hover:underline font-semibold first-letter:uppercase w-4/5"
           >
             {question.title}
           </Link>

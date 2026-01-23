@@ -1,3 +1,10 @@
+export type PaginatedResult<T> ={
+  items: T[],
+  totalCount: number,
+  page: number,
+  pageSize: number
+}
+export type AnswerSortOption = 'highScore' | 'created';
 export interface Question {
   id: string
   title: string

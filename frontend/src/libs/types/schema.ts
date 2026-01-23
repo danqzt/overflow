@@ -38,8 +38,18 @@ export const editAnswerSchema = postAnswerSchema.extend({
   answerId: z.string().uuid('Invalid answer ID'),
 })
 
+const sortOptions = ['newest', 'unanswered', 'active']
+export type SortOption = typeof sortOptions[number]
+export const questionSearchSchema = z.object({
+  tag: z.string().optional(),
+  sort: z.enum(sortOptions).optional(),
+  page: z.number().int().positive().optional(),
+  pageSize: z.number().int().positive().optional(),
+})
+
 export type QuestionSchema = z.infer<typeof schema>
 export type EditQuestionSchema = z.infer<typeof editQuestionSchema>
 export type AnswerSchema = z.infer<typeof answerSchema>
 export type EditAnswerSchema = z.infer<typeof editAnswerSchema>
 export type PostAnswerSchema = z.infer<typeof postAnswerSchema>
+export type QuestionSearch = z.infer<typeof questionSearchSchema>

@@ -5,6 +5,7 @@ import {
   editAnswerSchema,
   editQuestionSchema,
   postAnswerSchema,
+  questionSearchSchema,
   schema,
 } from '@/libs/types/schema.ts'
 import {
@@ -15,13 +16,11 @@ import {
 
 
 
-export const getQuestions = createServerFn({ method: 'GET' }).handler(
-  async () => fetchQuestions(),
+export const getQuestions = createServerFn({ method: 'GET' })
+  .inputValidator(questionSearchSchema)
+  .handler(async ({data}) => fetchQuestions(data),
 )
 
-export const getQuestionsByTag = createServerFn({ method: 'GET' })
-  .inputValidator((data: { tag: string }) => data)
-  .handler(async ({ data }) => fetchQuestions(data.tag))
 
 export const getQuestionById = createServerFn({ method: 'GET' })
   .inputValidator((data: { id: string }) => data)

@@ -19,7 +19,7 @@ export async function fetchClient<T>(
 
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
-    ...(authToken
+    ...(token
       ? { Authorization: `Bearer ${token}` }
       : {}),
     ...(rest.headers || {}),

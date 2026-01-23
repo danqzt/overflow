@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Common;
 using Contracts;
 using Ganss.Xss;
 using Microsoft.AspNetCore.Authorization;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuestionService.Data;
 using QuestionService.Dto;
+using QuestionService.Helpers;
 using QuestionService.Models;
 using QuestionService.Services;
 using Wolverine;
@@ -44,9 +46,26 @@ public class QuestionsController(
             TagSlugs = dto.Tags,
             AskerId = userId,
         };
-
-        db.Questions.Add(question);
-        await db.SaveChangesAsync();
+        await using var tx = await db.Database.BeginTransactionAsync();
+        try
+        {
+            db.Questions.Add(question);
+            await db.SaveChangesAsync();
+            await bus.PublishAsync(new QuestionCreated(
+                question.Id,
+                question.Title,
+                question.Content,
+                question.CreatedAt,
+                question.TagSlugs
+            ));
+            
+            await tx.CommitAsync();
+        }
+        catch (Exception ex)
+        {
+            await tx.RollbackAsync();
+            return BadRequest(ex.Message);   
+        }
 
         var slugs = question.TagSlugs.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
         if (slugs.Count > 0)
@@ -56,30 +75,40 @@ public class QuestionsController(
                 .ExecuteUpdateAsync(x => x.SetProperty(t => t.UsageCount, t => t.UsageCount + 1));
         }
 
-
-        await bus.PublishAsync(new QuestionCreated(
-            question.Id,
-            question.Title,
-            question.Content,
-            question.CreatedAt,
-            question.TagSlugs
-        ));
+        
         return Created($"/questions/{question.Id}", question);
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<Question>>> GetQuestions(string? tag)
+    public async Task<ActionResult<PaginationResult<Question>>> GetQuestions([FromQuery]QuestionQuery q)
     {
         var query = db.Questions
             .Include(a => a.Answers)
             .AsQueryable();
 
-        if (!string.IsNullOrEmpty(tag))
+        if (!string.IsNullOrEmpty(q.Tag))
         {
-            query = query.Where(q => q.TagSlugs.Contains(tag));
+            query = query.Where(x => x.TagSlugs.Contains(q.Tag));
         }
 
-        return await query.OrderByDescending(q => q.CreatedAt).ToListAsync();
+        query = q.Sort switch
+        {
+            "newest" => query.OrderByDescending(x => x.CreatedAt),
+            "active" => query.OrderByDescending(x => new[]
+            {
+                x.CreatedAt,
+                x.UpdatedAt ?? DateTime.MinValue,
+                x.Answers.Max(a => (DateTime?)a.CreatedAt) ?? DateTime.MinValue,
+                x.Answers.Max(a => a.UpdatedAt) ?? DateTime.MinValue
+            }.Max()),
+            "unanswered" => query.Where(x => !x.Answers.Any()).OrderByDescending(x => x.CreatedAt),
+            _ => query.OrderByDescending(x => x.CreatedAt),
+        };
+        
+
+        var result = await query.ToPaginatedListAsync(q);
+        
+        return result;
     }
 
     [HttpGet("{id}")]

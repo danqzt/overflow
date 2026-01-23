@@ -20,7 +20,7 @@ export default function TrendingTags() {
         Trending tags this week
       </h3>
       {isPending ? (
-        <div className="grid grid-cols-2 gap-3 px-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 px-6">
           {[...Array(6)].map((_, idx) => (
             <div
               key={idx}
@@ -30,7 +30,7 @@ export default function TrendingTags() {
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-3 px-6">
+        <div className="grid grid-cols-2 gap-4 px-6">
           {resp?.data &&
             resp.data.map((tag) => (
               <Chip

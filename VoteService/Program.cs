@@ -69,17 +69,5 @@ app.MapGet("/votes/{questionId}", async (string questionId, VoteDbContext db, Cl
     return Results.Ok(votes);
 }).RequireAuthorization();
 
-using var scope = app.Services.CreateScope();
-var services = scope.ServiceProvider;
-try
-{
-    var context = services.GetRequiredService<VoteDbContext>();
-    await context.Database.MigrateAsync();
-}
-catch (Exception ex)
-{
-    var logger = services.GetRequiredService<ILogger<Program>>();
-    logger.LogError(ex, "An error occurred migrating the database.");
-    
-}
+await app.MigrateDbContextsAsync<VoteDbContext>();
 app.Run();

@@ -1,8 +1,9 @@
 import { Button } from '@heroui/button'
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate, useSearch } from '@tanstack/react-router'
 import { Tabs } from '@heroui/tabs'
 import { Tab } from '@heroui/react'
 import { useTagStore } from '@/context/useTagStore.ts'
+import { SortOption } from '@/libs/types/schema.ts'
 
 type Props = {
   tag?: string
@@ -14,7 +15,20 @@ const tabs = [
   { key: 'unanswered', label: 'Unanswered' },
 ]
 export default function QuestionHeader({ tag, total }: Props) {
-  const selectedTag = useTagStore((state) => state.getTagBySlug(tag!))
+  const selectedTag = useTagStore((state) => state.getTagBySlug(tag!));
+  const searchParams = useSearch({ from: '/questions/' });
+  const selected = searchParams.sort ?? 'newest';
+  const nav = useNavigate();
+  const handleTabChange = async (key : unknown) => {
+    const selectedKey = key as SortOption;
+    await nav({
+      to: '/questions',
+      search: {
+        ...searchParams,
+        sort: selectedKey ?? 'newest',
+      },resetScroll: true,
+    })
+  }
   return (
     <div className="flex flex-col w-full border-b gap-4 pb-4">
       <div className="flex justify-between px-6">
@@ -35,7 +49,7 @@ export default function QuestionHeader({ tag, total }: Props) {
           {total} {total == 1 ? 'Question' : 'Questions'}
         </div>
         <div className="flex items-center">
-          <Tabs>
+          <Tabs selectedKey={selected} onSelectionChange={handleTabChange} >
             {tabs.map((item) => (
               <Tab key={item.key} title={item.label} />
             ))}
