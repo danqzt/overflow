@@ -3,10 +3,7 @@ using Projects;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-//aspire publish -o infra
-//aspire do prepare-compose --environment staging -o infra
-//in infra folder: docker-compose --env-file .env.staging up -d
-var compose = builder.AddDockerComposeEnvironment("compose")
+var compose = builder.AddDockerComposeEnvironment("overflow")
     .WithDashboard(d => d.WithHostPort(8080));
 
 //run: dotnet dev-certs https --trust
@@ -35,15 +32,16 @@ var voteDb = postgres.AddDatabase("voteDb");
 //dotnet user-secrets list 
 
 var typesenseApiKey = builder.AddParameter("typesense-api-key", secret: true);
-var typesenseKey = builder.Environment.IsDevelopment() 
-    ? builder.Configuration["Parameters:typesense-api-key"] ?? throw new ArgumentException("Missing parameters:typesense-api-key")
-    : "${TYPESENSE_API_KEY}";
+// var typesenseKey = builder.Environment.IsDevelopment() 
+//     ? builder.Configuration["Parameters:typesense-api-key"] ?? throw new ArgumentException("Missing parameters:typesense-api-key")
+//     : "${TYPESENSE_API_KEY}";
 
 //dashboard: https://bfritscher.github.io/typesense-dashboard/#/
 var typesense = builder.AddContainer("typesense", "typesense/typesense", "29.0")
-    .WithArgs("--data-dir", "/data", "--api-key", typesenseKey, "--enable-cors")
     .WithHttpEndpoint(8108, 8108, name: "typesense")
-    .WithEnvironment("TYPESENSE_API_KEY", typesenseKey)
+    .WithEnvironment("TYPESENSE_DATA_DIR", "/data")
+    .WithEnvironment("TYPESENSE_API_KEY", typesenseApiKey)
+    .WithEnvironment("TYPESENSE_ENABLE_CORS", "true")
     .WithVolume("typesense-data", "/data");
 
 var typesenseContainer = typesense.GetEndpoint("typesense");
@@ -124,11 +122,17 @@ if (!builder.Environment.IsDevelopment())
     keycloak.WithEnvironment("KC_HOSTNAME", "https://id.overflow.local")
         .WithEnvironment("KC_HOSTNAME_BACKCHANNEL_DYNAMIC", "true");
     
-    webapp.WithEnvironment("API_URL","${API_URL}")
-        .WithEnvironment("BETTER_AUTH_SECRET","${BETTER_AUTH_SECRET}")
-        .WithEnvironment("CLOUDINARY_API_SECRET","${CLOUDINARY_API_SECRET}")
-        .WithEnvironment("AUTH_KEYCLOAK_CLIENT_SECRET","${AUTH_KEYCLOAK_CLIENT_SECRET}")
-        .WithEnvironment("AUTH_KEYCLOAK_ISSUER_INTERNAL","${AUTH_KEYCLOAK_ISSUER_INTERNAL}")
+    postgres.WithBindMount("../infra/db", "/docker-entrypoint-initdb.d");
+    
+    var betterAuthSecret = builder.AddParameter("better-auth-secret", secret: true);
+    var cloudinarySecret = builder.AddParameter("cloudinary-secret", secret: true);
+    var keyCloakSecret = builder.AddParameter("keycloak-secret", secret: true);
+    
+    webapp.WithEnvironment("API_URL",yarp.GetEndpoint("http"))
+        .WithEnvironment("BETTER_AUTH_SECRET",betterAuthSecret)
+        .WithEnvironment("CLOUDINARY_API_SECRET",cloudinarySecret)
+        .WithEnvironment("AUTH_KEYCLOAK_CLIENT_SECRET",keyCloakSecret)
+        .WithEnvironment("AUTH_KEYCLOAK_ISSUER_INTERNAL",$"{keycloak.GetEndpoint("http")}/realms/overflow")
         .PublishAsDockerFile();
 }
 builder.Build().Run();

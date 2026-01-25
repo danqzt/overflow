@@ -4,13 +4,13 @@ import { auth } from '@/server/auth.ts'
 
 export const authMiddleware = createMiddleware()
   .server(async({next}) =>{
-    const fuck = await auth.api.getSession({
+    const data = await auth.api.getSession({
         headers: getRequestHeaders(),
     });
-      console.log("I M IN MIDDLEWARE", fuck);
+      console.log("I M IN MIDDLEWARE", data);
       return next({
           context: {
-            session: fuck?.session ?? null
+            session: data?.session ?? null
           },
       });
   })

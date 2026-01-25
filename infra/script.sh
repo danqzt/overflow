@@ -1,3 +1,16 @@
+#inside infra folder
+aspire publish -o .
+aspire deploy -o . 
+aspire do docker-compose-down-overflow -o . -d
+aspire do docker-compose-up-overflow -o . -d
+
+#aspire do prepare-overflow --environment staging -o infra
+#aspire do docker-compose-up-overflow -environment staging -o infra
+#in infra folder: docker-compose --env-file .env.staging up -d
+
+#get secrets:
+dotnet user-secrets list --project Overflow.AppHost 
+
 #All these need to run in the infra folder
 #generate docker compose file
 aspire publish -environment staging -o .
@@ -12,7 +25,7 @@ docker compose --env-file .env.staging up -d
 
 #turning off existing containers
 docker compose --env-file .env.staging down
-docker rmi -f $(docker images search-svc -q) $(docker images webapp -q) $(docker images question-svc -q)
+docker rmi -f $(docker images search-svc -q) $(docker images vote-svc -q) $(docker images webapp -q) $(docker images question-svc -q) $(docker images stat-svc -q) $(docker images profile-svc -q)
 docker rmi -f $(docker images webapp -q) 
 
 
