@@ -31,3 +31,13 @@ docker rmi -f $(docker images webapp -q)
 
 #rebuild and restart only one service (change env vars)
 docker compose --env-file .env.staging up -d --force-recreate --no-deps webapp
+
+#aws
+ssh -i overflow.pem ec2-user@3.104.113.125
+
+#prod troubleshoot:
+docker ps --format '{{.ID}} {{.Image}} {{.Status}}'
+docker log 2a8a0a56561d
+ocker volume ls | grep vhost
+docker volume inspect overflowapphost_vhost
+sudo cp overflow.danqzt.com /var/lib/docker/volumes/overflowapphost_vhost/_data/

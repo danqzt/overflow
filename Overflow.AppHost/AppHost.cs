@@ -4,6 +4,10 @@ using Projects;
 var builder = DistributedApplication.CreateBuilder(args);
 
 var compose = builder.AddDockerComposeEnvironment("overflow")
+    .WithSshDeploySupport() //https://github.com/davidfowl/aspire-ssh-deploy/tree/main
+    .WithFileTransfer(localPath: "../infra/realms", remotePath: "$HOME/keycloak/realms")
+    .WithFileTransfer(localPath: "../infra/nginx/vhost.d", remotePath: "$HOME/nginx")
+    .WithFileTransfer(localPath: "../infra/db", remotePath: "$HOME/init.db")
     .WithDashboard(d => d.WithHostPort(8080));
 
 //run: dotnet dev-certs https --trust
@@ -12,16 +16,17 @@ var keycloak = builder.AddKeycloak("keycloak", 16001)
     .WithDataVolume("keycloak-data")
     .WithEnvironment("KC_HTTP_ENABLED", "true")
     .WithEnvironment("KC_HOSTNAME_STRICT", "false")
-    .WithRealmImport("../infra/realms")
-    .WithEndpoint(16001, 8080, "keycloak-port", isExternal:true)
-    .WithEnvironment("VIRTUAL_HOST", "id.overflow.local")
+    .WithEndpoint(16001, 8080, "keycloak-port", isExternal: true)
+    .WithEnvironment("VIRTUAL_HOST", "overflow-id.danqzt.com")
     .WithEnvironment("VIRTUAL_PORT", "8080")
+    .WithEnvironment("LETSENCRYPT_HOST", "overflow-id.danqzt.com")
+    .WithEnvironment("LETSENCRYPT_EMAIL", "danqzt@hotmail.com")
     .WithHttpsDeveloperCertificate();
 
 var postgres = builder.AddPostgres("postgres", port: 5432)
     .WithDataVolume("postgres-data")
     .WithPgWeb();
-    //.WithPgAdmin();
+//.WithPgAdmin();
 
 var questionDb = postgres.AddDatabase("questionDb");
 var profileDb = postgres.AddDatabase("profileDb");
@@ -68,7 +73,7 @@ var searchService = builder.AddProject<SearchService>("search-svc")
 var profileService = builder.AddProject<ProfileService>("profile-svc")
     .WithReference(keycloak)
     .WithReference(profileDb)
-    .WithReference(rabbitmq)    
+    .WithReference(rabbitmq)
     .WaitForStart(keycloak)
     .WaitForStart(rabbitmq)
     .WaitForStart(profileDb);
@@ -82,7 +87,7 @@ var statService = builder.AddProject<StatService>("stat-svc")
 var voteService = builder.AddProject<VoteService>("vote-svc")
     .WithReference(keycloak)
     .WithReference(voteDb)
-    .WithReference(rabbitmq)    
+    .WithReference(rabbitmq)
     .WaitForStart(keycloak)
     .WaitForStart(rabbitmq)
     .WaitForStart(voteDb);
@@ -99,40 +104,61 @@ var yarp = builder.AddYarp("gateway")
         c.AddRoute("/votes/{**catch-all}", voteService);
     })
     .WithEndpoint(18001, 5000, scheme: "http", "gateway-port", isExternal: true)
-    .WithEnvironment("VIRTUAL_HOST", "api.overflow.local")
-    .WithEnvironment("VIRTUAL_PORT", "5000");
+    .WithEnvironment("VIRTUAL_HOST", "overflow-api.danqzt.com")
+    .WithEnvironment("VIRTUAL_PORT", "5000")
+    .WithEnvironment("LETSENCRYPT_HOST", "overflow-api.danqzt.com")
+    .WithEnvironment("LETSENCRYPT_EMAIL", "danqzt@hotmail.com");
 
 var webapp = builder.AddViteApp(name: "webapp", appDirectory: "../frontend")
     .WithPnpm()
     .WithReference(keycloak)
     .WithEndpoint("http", config => config.Port = 13000)
-    .WithEnvironment("VIRTUAL_HOST", "app.overflow.local")
+    .WithEnvironment("VIRTUAL_HOST", "overflow.danqzt.com")
+    .WithEnvironment("LETSENCRYPT_HOST", "overflow.danqzt.com")
+    .WithEnvironment("LETSENCRYPT_EMAIL", "danqzt@hotmail.com")
     .WithEnvironment("VIRTUAL_PORT", "13000");
 
-
-if (!builder.Environment.IsDevelopment())
+if (builder.Environment.IsDevelopment())
+{
+    keycloak.WithRealmImport("../infra/realms");
+}
+else
 {
     builder.AddContainer("nginx-proxy", "nginxproxy/nginx-proxy", "1.9")
         .WithEndpoint(80, 80, "nginx", isExternal: true)
         .WithEndpoint(443, 443, "nginx-ssl", isExternal: true)
         .WithBindMount("/var/run/docker.sock", "/tmp/docker.sock", true)
-        .WithBindMount("../infra/devcert", "/etc/nginx/certs", true)
-        .WithBindMount("../infra/nginx/vhost.d", "/etc/nginx/vhost.d", true);
-    
-    keycloak.WithEnvironment("KC_HOSTNAME", "https://id.overflow.local")
+        .WithVolume("certs", "/etc/nginx/certs", false)
+        .WithVolume("html", "/usr/share/nginx/html", false)
+        .WithVolume("vhost", "/etc/nginx/vhost.d")
+        .WithContainerName("nginx-proxy");
+
+    builder.AddContainer("nginx-proxy-acme", "nginxproxy/acme-companion", "2.2")
+        .WithEnvironment("DEFAULT_EMAIL", "your-email@address.com")
+        .WithEnvironment("NGINX_PROXY_CONTAINER", "nginx-proxy")
+        .WithBindMount("/var/run/docker.sock", "/var/run/docker.sock", isReadOnly: true)
+        .WithVolume("certs", "/etc/nginx/certs")
+        .WithVolume("html", "/usr/share/nginx/html")
+        .WithVolume("vhost", "/etc/nginx/vhost.d", false)
+        .WithVolume("acme", "/etc/acme.sh");
+
+
+    keycloak.WithEnvironment("KC_HOSTNAME", "https://overflow-id.danqzt.com")
+        .WithBindMount("/home/ubuntu/keycloak/realms", "/opt/keycloak/data/import")
         .WithEnvironment("KC_HOSTNAME_BACKCHANNEL_DYNAMIC", "true");
-    
-    postgres.WithBindMount("../infra/db", "/docker-entrypoint-initdb.d");
-    
+
+    postgres.WithBindMount("/home/ubuntu/init.db", "/docker-entrypoint-initdb.d");
+
     var betterAuthSecret = builder.AddParameter("better-auth-secret", secret: true);
     var cloudinarySecret = builder.AddParameter("cloudinary-secret", secret: true);
     var keyCloakSecret = builder.AddParameter("keycloak-secret", secret: true);
-    
-    webapp.WithEnvironment("API_URL",yarp.GetEndpoint("http"))
-        .WithEnvironment("BETTER_AUTH_SECRET",betterAuthSecret)
-        .WithEnvironment("CLOUDINARY_API_SECRET",cloudinarySecret)
-        .WithEnvironment("AUTH_KEYCLOAK_CLIENT_SECRET",keyCloakSecret)
-        .WithEnvironment("AUTH_KEYCLOAK_ISSUER_INTERNAL",$"{keycloak.GetEndpoint("http")}/realms/overflow")
+
+    webapp.WithEnvironment("API_URL", yarp.GetEndpoint("http"))
+        .WithEnvironment("BETTER_AUTH_SECRET", betterAuthSecret)
+        .WithEnvironment("CLOUDINARY_API_SECRET", cloudinarySecret)
+        .WithEnvironment("AUTH_KEYCLOAK_CLIENT_SECRET", keyCloakSecret)
+        .WithEnvironment("AUTH_KEYCLOAK_ISSUER_INTERNAL", $"{keycloak.GetEndpoint("http")}/realms/overflow")
         .PublishAsDockerFile();
 }
+
 builder.Build().Run();

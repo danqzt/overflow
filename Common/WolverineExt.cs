@@ -17,6 +17,7 @@ public static class WolverineExt
     public static async Task UseWolverineWithRabbitMqAsync(this IHostApplicationBuilder builder, 
         Action<WolverineOptions> configureMsg)
     {
+        Console.WriteLine($"APPDOMAIN: ${AppDomain.CurrentDomain.FriendlyName}");
         var isEfDesignTime = AppDomain.CurrentDomain.FriendlyName.StartsWith("ef", StringComparison.OrdinalIgnoreCase);
 
         if (!isEfDesignTime)

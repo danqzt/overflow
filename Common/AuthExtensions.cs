@@ -19,6 +19,7 @@ public static class AuthExtensions
                         "http://keycloak/realms/overflow",
                         "http://id.overflow.local/realms/overflow",
                         "https://id.overflow.local/realms/overflow",
+                        "https://overflow-id.danqzt.com/realms/overflow",
                     ],
                 };
             });
