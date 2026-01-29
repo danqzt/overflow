@@ -40,8 +40,8 @@ jobs:
           DockerSSH__TargetHost: ${{ secrets.TARGET_HOST }}
           DockerSSH__SshUsername: ${{ secrets.SSH_USERNAME }}
           DockerRegistry__RegistryUrl: docker.io
-          DockerRegistry__RepositoryPrefix: ${{ vars.PARAMETERS_REGISTRYURL }}
-          DockerRegistry__RegistryUsername: ${{ vars.PARAMETERS_REGISTRYURL }}
+          DockerRegistry__RepositoryPrefix: ${{ vars.PARAMETERS_REPOSITORYPREFIX }}
+          DockerRegistry__RegistryUsername: ${{ vars.PARAMETERS_REPOSITORYPREFIX }}
           DockerRegistry__RegistryPassword: ${{ secrets.DOCKER_TOKEN }}
           IMAGE_TAG_SUFFIX: build.${{ github.run_number }}.${{ env.SHORT_SHA }}
           Parameters__registryUrl: ${{ vars.PARAMETERS_REGISTRYURL }}
