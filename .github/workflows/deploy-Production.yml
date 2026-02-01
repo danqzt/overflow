@@ -8,6 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     environment: Production
     permissions:
       contents: read
@@ -20,7 +21,7 @@ jobs:
         with:
           APP_SECRETS: ${{ vars.WEBAPP_CLIENT_VARS }}
           ENV_FILE_NAME: ".env.production"
-          DIRECTORY: ${{ github.workspace }}/frontend
+          DESTINATION_PATH: ${{ github.workspace }}/frontend
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
