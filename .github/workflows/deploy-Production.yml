@@ -29,6 +29,8 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          driver: docker
           
       - name: Install Aspire CLI
         run: curl -sSL https://aspire.dev/install.sh | bash
