@@ -3,16 +3,18 @@ ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
 
-# Dependencies stage
-FROM base AS deps
-WORKDIR /app
-COPY package.json pnpm-lock.yaml ./
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
-
 # Build stage
 FROM base AS builder
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+
+# 1. Copy config files. We use the wildcard * so the build
+# won't fail if the .npmrc is missing, though it's required for your setup.
+COPY package.json pnpm-lock.yaml .npmrc* ./
+
+# 2. Install dependencies within the same stage to keep symlinks valid
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+
+# 3. Copy source and build
 COPY . .
 RUN pnpm build
 
@@ -25,6 +27,7 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 tanstack
 
+# TanStack Start / Nitro typically outputs to .output
 COPY --from=builder --chown=tanstack:nodejs /app/.output ./.output
 COPY --from=builder /app/package.json ./package.json
 
