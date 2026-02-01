@@ -20,7 +20,7 @@ jobs:
         uses: aasmal97/create-env-file@v3.1.2
         with:
           APP_SECRETS: ${{ vars.WEBAPP_CLIENT_VARS }}
-          ENV_FILE_NAME: ".env.production"
+          ENV_FILE_NAME: "production"
           DESTINATION_PATH: ${{ github.workspace }}/frontend
 
       - name: Setup .NET
