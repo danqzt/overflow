@@ -15,6 +15,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Create .env for the webapps
+        uses: aasmal97/create-env-file@v3.1.2
+        with:
+          APP_SECRETS: ${{ vars.WEBAPP_CLIENT_VARS }}
+          ENV_FILE_NAME: ".env.production"
+          DIRECTORY: ${{ github.workspace }}/frontend
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
