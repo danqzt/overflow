@@ -10,6 +10,8 @@ aspire do docker-compose-up-overflow -o . -d
 
 #get secrets:
 dotnet user-secrets list --project Overflow.AppHost 
+dotnet user-secrets set "Parameters:pg-username" "pg-user" --project Overflow.AppHost
+dotnet user-secrets set "Parameters:pg-password" "Pass@word1" --project Overflow.AppHost
 
 #All these need to run in the infra folder
 #generate docker compose file

@@ -4,7 +4,6 @@ import { genericOAuth, jwt } from 'better-auth/plugins'
 const clientId = import.meta.env.VITE_AUTH_KEYCLOAK_CLIENT_ID
 const clientSecret = process.env.AUTH_KEYCLOAK_CLIENT_SECRET
 const baseUrl = import.meta.env.VITE_AUTH_URL
-const issuerInternal = process.env.AUTH_KEYCLOAK_ISSUER_INTERNAL
 const issuerExt = import.meta.env.VITE_AUTH_KEYCLOAK_ISSUER
 const apiUrl = process.env.API_URL
 
@@ -12,14 +11,13 @@ console.log(
   'Client ID:',
   clientId,
   'Issuer:',
-  issuerInternal,
   'Base URL:',
   baseUrl,
   'Client Secret:',
   clientSecret,
 )
 
-if (!clientId || !clientSecret || !issuerInternal || !baseUrl) {
+if (!clientId || !clientSecret || !baseUrl) {
   throw new Error('Missing required Keycloak environment variables')
 }
 
@@ -31,18 +29,15 @@ export const auth = betterAuth({
           providerId: 'keycloak',
           clientId: clientId,
           clientSecret: clientSecret,
-          authorizationUrl: `${issuerExt}/protocol/openid-connect/auth`,
-          tokenUrl: `${issuerInternal}/protocol/openid-connect/token`,
-          userInfoUrl: `${issuerInternal}/protocol/openid-connect/userinfo`,
+          discoveryUrl: `${issuerExt}/.well-known/openid-configuration`,
           scopes: ['openid', 'profile', 'email', 'offline_access'],
           authorizationUrlParams: {
             prompt: 'login',
           },
-          prompt: 'login',
           getUserInfo: async (tokens) => {
             try {
               const userinfoResp = await fetch(
-                `${issuerInternal}/protocol/openid-connect/userinfo`,
+                `${issuerExt}/protocol/openid-connect/userinfo`,
                 {
                   headers: {
                     Authorization: `Bearer ${tokens.accessToken}`,

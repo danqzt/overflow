@@ -14,7 +14,7 @@ builder.Services.AddOpenApi();
 builder.AddServiceDefaults();
 builder.Services.AddKeyCloakAuthentication();
 await builder.UseWolverineWithRabbitMqAsync(opt => opt.ApplicationAssembly = typeof(Program).Assembly);
-builder.AddNpgsqlDbContext<VoteDbContext>("voteDb");
+builder.AddAzureNpgsqlDbContext<VoteDbContext>("voteDb");
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

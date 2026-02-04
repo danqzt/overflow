@@ -12,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.AddServiceDefaults();
 builder.Services.AddKeyCloakAuthentication();
-builder.AddNpgsqlDbContext<ProfileDbContext>("profileDb");
+builder.AddAzureNpgsqlDbContext<ProfileDbContext>("profileDb");
 await builder.UseWolverineWithRabbitMqAsync(opt =>
 {
     opt.ApplicationAssembly = typeof(Program).Assembly;

@@ -3,30 +3,21 @@ using Projects;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-var compose = builder.AddDockerComposeEnvironment("overflow")
-    .WithSshDeploySupport() //https://github.com/davidfowl/aspire-ssh-deploy/tree/main
-    .WithFileTransfer(localPath: "../infra/realms", remotePath: "$HOME/keycloak/realms")
-    .WithFileTransfer(localPath: "../infra/nginx/vhost.d", remotePath: "$HOME/nginx")
-    .WithFileTransfer(localPath: "../infra/db", remotePath: "$HOME/init.db")
-    .WithDashboard(d => d.WithHostPort(8080));
 
+var kcPort = builder.ExecutionContext.IsPublishMode ? 80 : 16001;
 //run: dotnet dev-certs https --trust
 #pragma warning disable ASPIRECERTIFICATES001
-var keycloak = builder.AddKeycloak("keycloak", 16001)
-    .WithDataVolume("keycloak-data")
+var keycloak = builder.AddKeycloak("keycloak")
     .WithEnvironment("KC_HTTP_ENABLED", "true")
     .WithEnvironment("KC_HOSTNAME_STRICT", "false")
-    .WithEndpoint(16001, 8080, "keycloak-port", isExternal: true)
-    .WithEnvironment("VIRTUAL_HOST", "overflow-id.danqzt.com")
-    .WithEnvironment("VIRTUAL_PORT", "8080")
-    .WithEnvironment("LETSENCRYPT_HOST", "overflow-id.danqzt.com")
-    .WithEnvironment("LETSENCRYPT_EMAIL", "danqzt@hotmail.com")
-    .WithHttpsDeveloperCertificate();
+    .WithEnvironment("KC_PROXY_HEADERS", "xforwarded")
+    .WithDataVolume("keycloak-data");
 
-var postgres = builder.AddPostgres("postgres", port: 5432)
-    .WithDataVolume("postgres-data")
-    .WithPgWeb();
-//.WithPgAdmin();
+var pgUser = builder.AddParameter("pg-username", secret: false);
+var pgPassword = builder.AddParameter("pg-password", secret: true);
+
+var postgres = builder.AddAzurePostgresFlexibleServer("postgres")
+    .WithPasswordAuthentication(pgUser, pgPassword);
 
 var questionDb = postgres.AddDatabase("questionDb");
 var profileDb = postgres.AddDatabase("profileDb");
@@ -52,7 +43,6 @@ var typesense = builder.AddContainer("typesense", "typesense/typesense", "29.0")
 var typesenseContainer = typesense.GetEndpoint("typesense");
 
 var rabbitmq = builder.AddRabbitMQ("messaging")
-    .WithDataVolume("rabbitmq-data")
     .WithManagementPlugin(port: 15672);
 
 var questionService = builder.AddProject<QuestionService>("question-svc")
@@ -92,6 +82,8 @@ var voteService = builder.AddProject<VoteService>("vote-svc")
     .WaitForStart(rabbitmq)
     .WaitForStart(voteDb);
 
+var gwPort = builder.ExecutionContext.IsPublishMode ? 80 : 18001;
+
 var yarp = builder.AddYarp("gateway")
     .WithConfiguration(c =>
     {
@@ -103,51 +95,20 @@ var yarp = builder.AddYarp("gateway")
         c.AddRoute("/stats/{**catch-all}", statService);
         c.AddRoute("/votes/{**catch-all}", voteService);
     })
-    .WithEndpoint(18001, 5000, scheme: "http", "gateway-port", isExternal: true)
-    .WithEnvironment("VIRTUAL_HOST", "overflow-api.danqzt.com")
-    .WithEnvironment("VIRTUAL_PORT", "5000")
-    .WithEnvironment("LETSENCRYPT_HOST", "overflow-api.danqzt.com")
-    .WithEnvironment("LETSENCRYPT_EMAIL", "danqzt@hotmail.com");
+    .WithEndpoint(gwPort, 5000, scheme: "http", "gateway-port", isExternal: true);
 
 var webapp = builder.AddViteApp(name: "webapp", appDirectory: "../frontend")
     .WithPnpm()
-    .WithReference(keycloak)
-    .WithEndpoint("http", config => config.Port = 13000)
-    .WithEnvironment("VIRTUAL_HOST", "overflow.danqzt.com")
-    .WithEnvironment("LETSENCRYPT_HOST", "overflow.danqzt.com")
-    .WithEnvironment("LETSENCRYPT_EMAIL", "danqzt@hotmail.com")
-    .WithEnvironment("VIRTUAL_PORT", "13000");
+    .WithReference(keycloak);
 
-if (builder.Environment.IsDevelopment())
+if (builder.ExecutionContext.IsPublishMode)
 {
-    keycloak.WithRealmImport("../infra/realms");
-}
-else
-{
-    builder.AddContainer("nginx-proxy", "nginxproxy/nginx-proxy", "1.9")
-        .WithEndpoint(80, 80, "nginx", isExternal: true)
-        .WithEndpoint(443, 443, "nginx-ssl", isExternal: true)
-        .WithBindMount("/var/run/docker.sock", "/tmp/docker.sock", true)
-        .WithVolume("certs", "/etc/nginx/certs", false)
-        .WithVolume("html", "/usr/share/nginx/html", false)
-        .WithVolume("vhost", "/etc/nginx/vhost.d")
-        .WithContainerName("nginx-proxy");
-
-    builder.AddContainer("nginx-proxy-acme", "nginxproxy/acme-companion", "2.2")
-        .WithEnvironment("DEFAULT_EMAIL", "your-email@address.com")
-        .WithEnvironment("NGINX_PROXY_CONTAINER", "nginx-proxy")
-        .WithBindMount("/var/run/docker.sock", "/var/run/docker.sock", isReadOnly: true)
-        .WithVolume("certs", "/etc/nginx/certs")
-        .WithVolume("html", "/usr/share/nginx/html")
-        .WithVolume("vhost", "/etc/nginx/vhost.d", false)
-        .WithVolume("acme", "/etc/acme.sh");
-
-
-    keycloak.WithEnvironment("KC_HOSTNAME", "https://overflow-id.danqzt.com")
-        .WithBindMount("/home/ubuntu/keycloak/realms", "/opt/keycloak/data/import")
-        .WithEnvironment("KC_HOSTNAME_BACKCHANNEL_DYNAMIC", "true");
-
-    postgres.WithBindMount("/home/ubuntu/init.db", "/docker-entrypoint-initdb.d");
+    keycloak.WithEndpoint("http", e =>
+    {
+        e.IsExternal = true;
+        e.TargetPort = 8080;
+        e.Port = 80;
+    });
 
     var betterAuthSecret = builder.AddParameter("better-auth-secret", secret: true);
     var cloudinarySecret = builder.AddParameter("cloudinary-secret", secret: true);
@@ -157,8 +118,24 @@ else
         .WithEnvironment("BETTER_AUTH_SECRET", betterAuthSecret)
         .WithEnvironment("CLOUDINARY_API_SECRET", cloudinarySecret)
         .WithEnvironment("AUTH_KEYCLOAK_CLIENT_SECRET", keyCloakSecret)
-        .WithEnvironment("AUTH_KEYCLOAK_ISSUER_INTERNAL", $"{keycloak.GetEndpoint("http")}/realms/overflow")
         .PublishAsDockerFile();
+    
+    rabbitmq.WithVolume("rabbitmq-data", "var/lib/rabbitmq/mnesia");
+    webapp.WithEndpoint("http", config =>
+    {
+        config.Port = 80;
+        config.IsExternal = true;
+        config.TargetPort = 13000;
+    });
+    
+}
+else
+{
+    postgres.RunAsContainer();
+    rabbitmq.WithDataVolume("rabbitmq-data");
+    webapp.WithEndpoint("http", config => config.Port = 13000);
+    keycloak.WithEndpoint(kcPort, 8080, "keycloak-port", isExternal: true)
+        .WithHttpsDeveloperCertificate();
 }
 
 builder.Build().Run();
