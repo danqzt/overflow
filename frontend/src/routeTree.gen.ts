@@ -19,6 +19,7 @@ import { Route as QuestionsIdRouteImport } from './routes/questions/$id'
 import { Route as ProfilesSigninRouteImport } from './routes/profiles/signin'
 import { Route as ProfilesIdRouteImport } from './routes/profiles/$id'
 import { Route as ApiSignImageRouteImport } from './routes/api/sign-image'
+import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as QuestionsEditIdRouteImport } from './routes/questions/edit.$id'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
@@ -72,6 +73,11 @@ const ApiSignImageRoute = ApiSignImageRouteImport.update({
   path: '/api/sign-image',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiHealthRoute = ApiHealthRouteImport.update({
+  id: '/api/health',
+  path: '/api/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const QuestionsEditIdRoute = QuestionsEditIdRouteImport.update({
   id: '/questions/edit/$id',
   path: '/questions/edit/$id',
@@ -85,6 +91,7 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/health': typeof ApiHealthRoute
   '/api/sign-image': typeof ApiSignImageRoute
   '/profiles/$id': typeof ProfilesIdRoute
   '/profiles/signin': typeof ProfilesSigninRoute
@@ -99,6 +106,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/health': typeof ApiHealthRoute
   '/api/sign-image': typeof ApiSignImageRoute
   '/profiles/$id': typeof ProfilesIdRoute
   '/profiles/signin': typeof ProfilesSigninRoute
@@ -114,6 +122,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/health': typeof ApiHealthRoute
   '/api/sign-image': typeof ApiSignImageRoute
   '/profiles/$id': typeof ProfilesIdRoute
   '/profiles/signin': typeof ProfilesSigninRoute
@@ -130,6 +139,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/api/health'
     | '/api/sign-image'
     | '/profiles/$id'
     | '/profiles/signin'
@@ -144,6 +154,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/api/health'
     | '/api/sign-image'
     | '/profiles/$id'
     | '/profiles/signin'
@@ -158,6 +169,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/api/health'
     | '/api/sign-image'
     | '/profiles/$id'
     | '/profiles/signin'
@@ -173,6 +185,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiHealthRoute: typeof ApiHealthRoute
   ApiSignImageRoute: typeof ApiSignImageRoute
   ProfilesIdRoute: typeof ProfilesIdRoute
   ProfilesSigninRoute: typeof ProfilesSigninRoute
@@ -258,6 +271,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiSignImageRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/health': {
+      id: '/api/health'
+      path: '/api/health'
+      fullPath: '/api/health'
+      preLoaderRoute: typeof ApiHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/questions/edit/$id': {
       id: '/questions/edit/$id'
       path: '/questions/edit/$id'
@@ -277,6 +297,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiHealthRoute: ApiHealthRoute,
   ApiSignImageRoute: ApiSignImageRoute,
   ProfilesIdRoute: ProfilesIdRoute,
   ProfilesSigninRoute: ProfilesSigninRoute,

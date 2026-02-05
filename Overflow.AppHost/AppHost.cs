@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Hosting;
+using Overflow.AppHost;
 using Projects;
 
 var builder = DistributedApplication.CreateBuilder(args);
@@ -11,6 +12,7 @@ var keycloak = builder.AddKeycloak("keycloak")
     .WithEnvironment("KC_HTTP_ENABLED", "true")
     .WithEnvironment("KC_HOSTNAME_STRICT", "false")
     .WithEnvironment("KC_PROXY_HEADERS", "xforwarded")
+    .WithEnvironment("KC_HEALTH_ENABLED", "true")
     .WithDataVolume("keycloak-data");
 
 var pgUser = builder.AddParameter("pg-username", secret: false);

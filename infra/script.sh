@@ -45,3 +45,8 @@ ocker volume ls | grep vhost
 docker volume inspect overflowapphost_vhost
 sudo cp overflow.danqzt.com /var/lib/docker/volumes/overflowapphost_vhost/_data/
 docker compose restart nginx-proxy-acme -d
+
+#azure deployment
+azd init
+azd provision
+azd deploy
