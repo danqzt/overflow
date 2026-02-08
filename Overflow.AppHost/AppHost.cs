@@ -1,3 +1,4 @@
+using Aspire.Hosting.Yarp;
 using Microsoft.Extensions.Hosting;
 using Overflow.AppHost;
 using Projects;
@@ -87,17 +88,17 @@ var voteService = builder.AddProject<VoteService>("vote-svc")
 var gwPort = builder.ExecutionContext.IsPublishMode ? 80 : 18001;
 
 var yarp = builder.AddYarp("gateway")
+    .WithEnvironment("ASPNETCORE_FORWARDEDHEADERS_ENABLED", "true")
     .WithConfiguration(c =>
     {
-        c.AddRoute("/questions/{**catch-all}", questionService);
-        c.AddRoute("/tags/{**catch-all}", questionService);
-        c.AddRoute("/search/{**catch-all}", searchService);
-        c.AddRoute("/tests/{**catch-all}", questionService);
-        c.AddRoute("/profiles/{**catch-all}", profileService);
-        c.AddRoute("/stats/{**catch-all}", statService);
-        c.AddRoute("/votes/{**catch-all}", voteService);
-    })
-    .WithEndpoint(gwPort, 5000, scheme: "http", "gateway-port", isExternal: true);
+        c.AddRoute("/questions/{**catch-all}", questionService.GetEndpoint("http"));
+        c.AddRoute("/tags/{**catch-all}", questionService.GetEndpoint("http"));
+        c.AddRoute("/search/{**catch-all}", searchService.GetEndpoint("http"));
+        c.AddRoute("/tests/{**catch-all}", questionService.GetEndpoint("http"));
+        c.AddRoute("/profiles/{**catch-all}", profileService.GetEndpoint("http"));
+        c.AddRoute("/stats/{**catch-all}", statService.GetEndpoint("http"));
+        c.AddRoute("/votes/{**catch-all}", voteService.GetEndpoint("http"));
+    });
 
 var webapp = builder.AddViteApp(name: "webapp", appDirectory: "../frontend")
     .WithPnpm()
@@ -118,8 +119,10 @@ if (builder.ExecutionContext.IsPublishMode)
 
     webapp.WithEnvironment("API_URL", yarp.GetEndpoint("http"))
         .WithEnvironment("BETTER_AUTH_SECRET", betterAuthSecret)
+        .WithEnvironment("BETTER_AUTH_TRUST_PROXY" , "true")
         .WithEnvironment("CLOUDINARY_API_SECRET", cloudinarySecret)
         .WithEnvironment("AUTH_KEYCLOAK_CLIENT_SECRET", keyCloakSecret)
+        .WithEnvironment("AUTH_KEYCLOAK_ISSUER_INTERNAL", $"{keycloak.GetEndpoint("http")}/realms/overflow")
         .PublishAsDockerFile();
     
     rabbitmq.WithVolume("rabbitmq-data", "var/lib/rabbitmq/mnesia");
@@ -129,6 +132,12 @@ if (builder.ExecutionContext.IsPublishMode)
         config.IsExternal = true;
         config.TargetPort = 13000;
     });
+
+    yarp.WithEndpoint(443, 5443, scheme: "https", isExternal: true)
+        .WithEndpoint("http", config => {
+            config.Port = 80;
+            config.TargetPort = 5000;
+        });
     
 }
 else
@@ -138,6 +147,7 @@ else
     webapp.WithEndpoint("http", config => config.Port = 13000);
     keycloak.WithEndpoint(kcPort, 8080, "keycloak-port", isExternal: true)
         .WithHttpsDeveloperCertificate();
+    yarp.WithEndpoint(18001, 5000, scheme: "http", "gateway-port", isExternal: true);
 }
 
 builder.Build().Run();

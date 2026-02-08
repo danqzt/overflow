@@ -17,6 +17,7 @@ await builder.UseWolverineWithRabbitMqAsync(opt =>
 {
     opt.ApplicationAssembly = typeof(Program).Assembly;
 });
+//Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
 
 var app = builder.Build();
 
