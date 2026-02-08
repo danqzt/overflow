@@ -1,0 +1,40 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "principalId": {
+        "value": "${AZURE_PRINCIPAL_ID}"
+      },
+      "better_auth_secret": {
+        "value": "${AZURE_BETTER_AUTH_SECRET}"
+      },
+      "cloudinary_secret": {
+        "value": "${AZURE_CLOUDINARY_SECRET}"
+      },
+      "keycloak_password": {
+        "value": "${AZURE_KEYCLOAK_PASSWORD}"
+      },
+      "keycloak_secret": {
+        "value": "${AZURE_KEYCLOAK_SECRET}"
+      },
+      "messaging_password": {
+        "value": "${AZURE_MESSAGING_PASSWORD}"
+      },
+      "pg_password": {
+        "value": "${AZURE_PG_PASSWORD}"
+      },
+      "pg_username": {
+        "value": "${AZURE_PG_USERNAME}"
+      },
+      "typesense_api_key": {
+        "value": "${AZURE_TYPESENSE_API_KEY}"
+      },
+      "environmentName": {
+        "value": "${AZURE_ENV_NAME}"
+      },
+      "location": {
+        "value": "${AZURE_LOCATION}"
+      }
+    }
+  }
+  

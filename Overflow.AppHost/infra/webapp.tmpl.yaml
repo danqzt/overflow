@@ -1,0 +1,61 @@
+api-version: 2024-02-02-preview
+location: {{ .Env.AZURE_LOCATION }}
+identity:
+  type: UserAssigned
+  userAssignedIdentities:
+    ? "{{ .Env.AZURE_CONTAINER_REGISTRY_MANAGED_IDENTITY_ID }}"
+    : {}
+properties:
+  environmentId: {{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_ID }}
+  configuration:
+    activeRevisionsMode: single
+    runtime:
+      dotnet:
+        autoConfigureDataProtection: true
+    ingress:
+      external: true
+      targetPort: 13000
+      transport: http
+      allowInsecure: false
+    registries:
+      - server: {{ .Env.AZURE_CONTAINER_REGISTRY_ENDPOINT }}
+        identity: {{ .Env.AZURE_CONTAINER_REGISTRY_MANAGED_IDENTITY_ID }}
+    secrets:
+      - name: auth-keycloak-client-secret
+        value: '{{ securedParameter "keycloak_secret" }}'
+      - name: better-auth-secret
+        value: '{{ securedParameter "better_auth_secret" }}'
+      - name: cloudinary-api-secret
+        value: '{{ securedParameter "cloudinary_secret" }}'
+  template:
+    containers:
+      - image: {{ .Image }}
+        name: webapp
+        env:
+          - name: AZURE_CLIENT_ID
+            value: {{ .Env.MANAGED_IDENTITY_CLIENT_ID }}
+          - name: API_URL
+            value: http://gateway.internal.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}
+          - name: KEYCLOAK_HTTP
+            value: http://keycloak.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}
+          - name: KEYCLOAK_MANAGEMENT
+            value: http://keycloak:9000
+          - name: NODE_ENV
+            value: development
+          - name: PORT
+            value: "13000"
+          - name: services__keycloak__http__0
+            value: http://keycloak.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}
+          - name: services__keycloak__management__0
+            value: http://keycloak:9000
+          - name: AUTH_KEYCLOAK_CLIENT_SECRET
+            secretRef: auth-keycloak-client-secret
+          - name: BETTER_AUTH_SECRET
+            secretRef: better-auth-secret
+          - name: CLOUDINARY_API_SECRET
+            secretRef: cloudinary-api-secret
+    scale:
+      minReplicas: 1
+tags:
+  azd-service-name: webapp
+  aspire-resource-name: webapp

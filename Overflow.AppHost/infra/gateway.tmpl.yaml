@@ -1,0 +1,117 @@
+api-version: 2024-02-02-preview
+location: {{ .Env.AZURE_LOCATION }}
+identity:
+  type: UserAssigned
+  userAssignedIdentities:
+    ? "{{ .Env.AZURE_CONTAINER_REGISTRY_MANAGED_IDENTITY_ID }}"
+    : {}
+properties:
+  environmentId: {{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_ID }}
+  configuration:
+    activeRevisionsMode: single
+    runtime:
+      dotnet:
+        autoConfigureDataProtection: true
+    ingress:
+      external: true
+      targetPort: 5000
+      transport: http
+      allowInsecure: false
+    registries:
+      - server: {{ .Env.AZURE_CONTAINER_REGISTRY_ENDPOINT }}
+        identity: {{ .Env.AZURE_CONTAINER_REGISTRY_MANAGED_IDENTITY_ID }}
+  template:
+    containers:
+      - image: {{ .Image }}
+        name: gateway
+        args:
+          - /app/yarp.dll
+        command: [dotnet]
+        env:
+          - name: AZURE_CLIENT_ID
+            value: {{ .Env.MANAGED_IDENTITY_CLIENT_ID }}
+          - name: ASPNETCORE_ENVIRONMENT
+            value: Development
+          - name: PROFILE_SVC_HTTP
+            value: http://profile-svc.internal.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}
+          - name: PROFILE_SVC_HTTPS
+            value: https://profile-svc.internal.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}
+          - name: QUESTION_SVC_HTTP
+            value: http://question-svc.internal.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}
+          - name: QUESTION_SVC_HTTPS
+            value: https://question-svc.internal.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}
+          - name: REVERSEPROXY__CLUSTERS__cluster_profile-svc__DESTINATIONS__destination1__ADDRESS
+            value: https+http://profile-svc
+          - name: REVERSEPROXY__CLUSTERS__cluster_question-svc__DESTINATIONS__destination1__ADDRESS
+            value: https+http://question-svc
+          - name: REVERSEPROXY__CLUSTERS__cluster_search-svc__DESTINATIONS__destination1__ADDRESS
+            value: https+http://search-svc
+          - name: REVERSEPROXY__CLUSTERS__cluster_stat-svc__DESTINATIONS__destination1__ADDRESS
+            value: https+http://stat-svc
+          - name: REVERSEPROXY__CLUSTERS__cluster_vote-svc__DESTINATIONS__destination1__ADDRESS
+            value: https+http://vote-svc
+          - name: REVERSEPROXY__ROUTES__route0__CLUSTERID
+            value: cluster_question-svc
+          - name: REVERSEPROXY__ROUTES__route0__MATCH__PATH
+            value: /questions/{**catch-all}
+          - name: REVERSEPROXY__ROUTES__route1__CLUSTERID
+            value: cluster_question-svc
+          - name: REVERSEPROXY__ROUTES__route1__MATCH__PATH
+            value: /tags/{**catch-all}
+          - name: REVERSEPROXY__ROUTES__route2__CLUSTERID
+            value: cluster_search-svc
+          - name: REVERSEPROXY__ROUTES__route2__MATCH__PATH
+            value: /search/{**catch-all}
+          - name: REVERSEPROXY__ROUTES__route3__CLUSTERID
+            value: cluster_question-svc
+          - name: REVERSEPROXY__ROUTES__route3__MATCH__PATH
+            value: /tests/{**catch-all}
+          - name: REVERSEPROXY__ROUTES__route4__CLUSTERID
+            value: cluster_profile-svc
+          - name: REVERSEPROXY__ROUTES__route4__MATCH__PATH
+            value: /profiles/{**catch-all}
+          - name: REVERSEPROXY__ROUTES__route5__CLUSTERID
+            value: cluster_stat-svc
+          - name: REVERSEPROXY__ROUTES__route5__MATCH__PATH
+            value: /stats/{**catch-all}
+          - name: REVERSEPROXY__ROUTES__route6__CLUSTERID
+            value: cluster_vote-svc
+          - name: REVERSEPROXY__ROUTES__route6__MATCH__PATH
+            value: /votes/{**catch-all}
+          - name: SEARCH_SVC_HTTP
+            value: http://search-svc.internal.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}
+          - name: SEARCH_SVC_HTTPS
+            value: https://search-svc.internal.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}
+          - name: STAT_SVC_HTTP
+            value: http://stat-svc.internal.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}
+          - name: STAT_SVC_HTTPS
+            value: https://stat-svc.internal.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}
+          - name: VOTE_SVC_HTTP
+            value: http://vote-svc.internal.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}
+          - name: VOTE_SVC_HTTPS
+            value: https://vote-svc.internal.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}
+          - name: services__profile-svc__http__0
+            value: http://profile-svc.internal.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}
+          - name: services__profile-svc__https__0
+            value: https://profile-svc.internal.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}
+          - name: services__question-svc__http__0
+            value: http://question-svc.internal.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}
+          - name: services__question-svc__https__0
+            value: https://question-svc.internal.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}
+          - name: services__search-svc__http__0
+            value: http://search-svc.internal.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}
+          - name: services__search-svc__https__0
+            value: https://search-svc.internal.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}
+          - name: services__stat-svc__http__0
+            value: http://stat-svc.internal.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}
+          - name: services__stat-svc__https__0
+            value: https://stat-svc.internal.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}
+          - name: services__vote-svc__http__0
+            value: http://vote-svc.internal.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}
+          - name: services__vote-svc__https__0
+            value: https://vote-svc.internal.{{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN }}
+    scale:
+      minReplicas: 1
+tags:
+  azd-service-name: gateway
+  aspire-resource-name: gateway

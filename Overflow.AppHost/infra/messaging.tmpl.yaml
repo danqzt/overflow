@@ -1,0 +1,51 @@
+api-version: 2024-02-02-preview
+location: {{ .Env.AZURE_LOCATION }}
+identity:
+  type: UserAssigned
+  userAssignedIdentities:
+    ? "{{ .Env.AZURE_CONTAINER_REGISTRY_MANAGED_IDENTITY_ID }}"
+    : {}
+properties:
+  environmentId: {{ .Env.AZURE_CONTAINER_APPS_ENVIRONMENT_ID }}
+  configuration:
+    activeRevisionsMode: single
+    runtime:
+      dotnet:
+        autoConfigureDataProtection: true
+    ingress:
+      additionalPortMappings:
+        - targetPort: 5672
+          external: false
+      external: false
+      targetPort: 15672
+      transport: http
+      allowInsecure: true
+    registries:
+      - server: {{ .Env.AZURE_CONTAINER_REGISTRY_ENDPOINT }}
+        identity: {{ .Env.AZURE_CONTAINER_REGISTRY_MANAGED_IDENTITY_ID }}
+    secrets:
+      - name: rabbitmq-default-pass
+        value: '{{ securedParameter "messaging_password" }}'
+  template:
+    volumes:
+      - name: messaging-rabbitmqdata
+        storageType: AzureFile
+        storageName: {{ .Env.SERVICE_MESSAGING_VOLUME_RABBITMQDATA_NAME }} 
+    containers:
+      - image: {{ .Image }}
+        name: messaging
+        env:
+          - name: AZURE_CLIENT_ID
+            value: {{ .Env.MANAGED_IDENTITY_CLIENT_ID }}
+          - name: RABBITMQ_DEFAULT_USER
+            value: guest
+          - name: RABBITMQ_DEFAULT_PASS
+            secretRef: rabbitmq-default-pass
+        volumeMounts:
+          - volumeName: messaging-rabbitmqdata
+            mountPath: var/lib/rabbitmq/mnesia
+    scale:
+      minReplicas: 1
+tags:
+  azd-service-name: messaging
+  aspire-resource-name: messaging
